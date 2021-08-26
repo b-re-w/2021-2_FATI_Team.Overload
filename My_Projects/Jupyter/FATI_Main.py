@@ -38,10 +38,10 @@ class TeamOverload(object):
             print("demo_name argument " + self.demo_name + "detected!\n")
         knn = ColorClassifier(demo_name=self.demo_name, user_name="Overload")
         knn.fit("hsv")
-        camera.start_camera()
+        self.camera.start_camera()
 
     def __del__(self):
-        camera.close()
+        self.camera.close()
 
     def play_DoReMi(self):
         """"play Do-Re-Mi"""
@@ -120,7 +120,7 @@ class TeamOverload(object):
 
 if __name__ == '__main__':
     # init
-    fati = TeamOverload(sys.argv[1] if len(sys.argv) > 1 or None)
+    fati = TeamOverload(sys.argv[1] if len(sys.argv) > 1 else None)
 
     # course A
     fati.run_courseA()
