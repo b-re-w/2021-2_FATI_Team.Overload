@@ -66,7 +66,8 @@ class TeamOverload(object):
                 (Note.FS2, 2), (Note.FS3, 2), (Note.FS2, 1), (Note.FS3, 1), (Note.A2, 1), (Note.B3, 1)
         ]
         for n in song:
-            self.zumi.play_note(n[0], n[1])
+            self.zumi.play_note(n[0])
+            time.sleep((n[1]-1)/2)
 
     def color_detector(self, len=10, unity=True):
         retry = True
