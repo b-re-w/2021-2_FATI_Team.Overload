@@ -52,7 +52,17 @@ class TeamOverload(object):
 
     def play_NextLevel(self):
         """"play aespa NextLevel"""
-        song = [Note.G2, Note.G2, Note.G3, Note.G3, Note.G2, Note.G3, Note.AS2, Note.AS2, Note.C3] * 2
+        song = [Note.CS4, Note.CS4, Note.FS4, Note.CS4, Note.CS4, Note.CS4, Note.CS4, Note.FS4, Note.FS4,
+                Note.FS4, Note.FS4, Note.FS4, Note.FS4, Note.FS4, Note.E4, Note.FS$, Note.FS4,
+                Note.FS4, Note.FS4, Note.FS4, Note.FS4, Note.FS4, Note.E4, Note.FS$, Note.FS4,
+                Note.CS4, Note.FS4, Note.CS4, Note.FS4, Note.FS4,
+                Note.CS4, Note.CS4, Note.FS4, Note.CS4, Note.CS4, Note.CS4, Note.CS4, Note.FS4, Note.FS4,
+                Note.FS4, Note.FS4, Note.FS4, Note.FS4, Note.FS4, Note.E4, Note.FS$, Note.FS4,
+                Note.FS4, Note.FS4, Note.FS4, Note.FS4, Note.FS4, Note.E4, Note.FS$, Note.FS4,
+                Note.FS4, Note.FS4, Note.FS4, Note.FS4,
+                Note.G2, Note.G2, Note.G3, Note.G3, Note.G2, Note.G3, Note.AS2, Note.AS2, Note.C3,
+                Note.G2, Note.G2, Note.G3, Note.G3, Note.G2, Note.G3, Note.AS2, Note.AS2, Note.C3
+        ]
         for n in song:
             self.zumi.play_note(n)
 
@@ -115,7 +125,7 @@ class TeamOverload(object):
         """
 
         # end
-        self.print_face()
+        ##self.print_face()
         self.play_NextLevel()
 
 
