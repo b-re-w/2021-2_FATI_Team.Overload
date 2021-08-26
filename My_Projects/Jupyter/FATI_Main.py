@@ -52,7 +52,7 @@ class TeamOverload(object):
 
     def play_NextLevel(self):
         """"play aespa NextLevel"""
-        tempo = 342
+        tempo = 684
         song = [(Note.CS4, 1), (Note.FS4, 0.5), (Note.CS4, 3), (Note.FS4, 2),
                 (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.E4, 1), (Note.FS4, 1),
                 (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.E4, 1), (Note.FS4, 1),
