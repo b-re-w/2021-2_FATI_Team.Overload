@@ -17,7 +17,6 @@
 
 
 import sys
-import time
 from collections import Counter
 
 from zumi.zumi import Zumi
@@ -53,21 +52,21 @@ class TeamOverload(object):
 
     def play_NextLevel(self):
         """"play aespa NextLevel"""
-        song = [(Note.CS4, 2), (Note.FS4, 1), (Note.CS4, 4), (Note.FS4, 2),
-                (Note.FS4, 1), (Note.FS4, 1), (Note.FS4, 1), (Note.FS4, 1), (Note.FS4, 1), (Note.E4, 1), (Note.FS4, 2),
-                (Note.FS4, 1), (Note.FS4, 1), (Note.FS4, 1), (Note.FS4, 1), (Note.FS4, 1), (Note.E4, 1), (Note.FS4, 2),
-                (Note.CS4, 1), (Note.FS4, 1), (Note.CS4, 1), (Note.FS4, 2),
-                (Note.CS4, 2), (Note.FS4, 1), (Note.CS4, 4), (Note.FS4, 2),
-                (Note.FS4, 1), (Note.FS4, 1), (Note.FS4, 1), (Note.FS4, 1), (Note.FS4, 1), (Note.E4, 1), (Note.FS4, 2),
-                (Note.FS4, 1), (Note.FS4, 1), (Note.FS4, 1), (Note.FS4, 1), (Note.FS4, 1), (Note.E4, 1), (Note.FS4, 2),
-                (Note.FS2, 2), (Note.FS3, 2), (Note.FS2, 1), (Note.FS3, 1), (Note.A2, 1), (Note.B3, 1),
-                (Note.FS2, 2), (Note.FS3, 2), (Note.FS2, 1), (Note.FS3, 1), (Note.A2, 1), (Note.B3, 1),
-                (Note.FS2, 2), (Note.FS3, 2), (Note.FS2, 1), (Note.FS3, 1), (Note.A2, 1), (Note.B3, 1),
-                (Note.FS2, 2), (Note.FS3, 2), (Note.FS2, 1), (Note.FS3, 1), (Note.A2, 1), (Note.B3, 1)
+        tempo = 342
+        song = [(Note.CS4, 1), (Note.FS4, 0.5), (Note.CS4, 3), (Note.FS4, 2),
+                (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.E4, 1), (Note.FS4, 1),
+                (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.E4, 1), (Note.FS4, 1),
+                (Note.CS4, 0.5), (Note.FS4, 0.5), (Note.CS4, 0.5), (Note.FS4, 1),
+                (Note.CS4, 1), (Note.FS4, 0.5), (Note.CS4, 3), (Note.FS4, 2),
+                (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.E4, 1), (Note.FS4, 1),
+                (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.E4, 1), (Note.FS4, 1),
+                (Note.FS2, 1), (Note.FS3, 1), (Note.FS2, 0.5), (Note.FS3, 0.5), (Note.A3, 1), (Note.B3, 1),
+                (Note.FS2, 1), (Note.FS3, 1), (Note.FS2, 0.5), (Note.FS3, 0.5), (Note.A3, 1), (Note.B3, 1),
+                (Note.FS2, 1), (Note.FS3, 1), (Note.FS2, 0.5), (Note.FS3, 0.5), (Note.A3, 1), (Note.B3, 1),
+                (Note.FS2, 1), (Note.FS3, 1), (Note.FS2, 0.5), (Note.FS3, 0.5), (Note.A3, 1), (Note.B3, 1)
         ]
         for n in song:
-            self.zumi.play_note(n[0])
-            time.sleep((n[1]-1)/2)
+            self.zumi.play_note(n[0], n[1])
 
     def color_detector(self, len=10, unity=True):
         retry = True
