@@ -39,6 +39,7 @@ class TeamOverload(object):
         knn = ColorClassifier(demo_name=self.demo_name, user_name="Overload")
         knn.fit("hsv")
         self.camera.start_camera()
+        self.screen.draw_text_center("Team.Overload")
 
     def __del__(self):
         self.camera.close()
@@ -51,7 +52,7 @@ class TeamOverload(object):
 
     def play_NextLevel(self):
         """"play aespa NextLevel"""
-        song = [Note.G2, Note.G2, Note.G4, Note.G4, Note.G2, Note.G4, Note.AS2, Note.AS2, Note.C3] * 2
+        song = [Note.G2, Note.G2, Note.G3, Note.G3, Note.G2, Note.G3, Note.AS2, Note.AS2, Note.C3] * 2
         for n in song:
             self.zumi.play_note(n)
 
