@@ -95,7 +95,7 @@ class TeamOverload(object):
                 pass
             result = common[0][0]
         print("color_detector result : " + result)
-        self.screen.draw_text_center(result, "detected")
+        self.screen.draw_text_center(result + " detected")
         return result
 
     def qr_detector(self):
