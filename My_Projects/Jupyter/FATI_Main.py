@@ -84,15 +84,16 @@ class TeamOverload(object):
                 self.screen.draw_text_center("%d/%d" % (i, len))
             print(predicts)
             retry = False
-            if unity:
-                common = Counter(predicts).most_common()
+            common = Counter(predicts).most_common()
+            if unity:  # 유일성 보장
                 for c in common[1:]:
                     if c[1] == common[0][1]:
                         print("unity of prediction cannot be guaranteed. retry!")
                         self.screen.draw_text_center("retry!!")
                         retry = True
             else:  # 동일한 빈도수의 값이 나온 경우 문제 발생.
-                result = Counter(predicts).most_common()[0][0]
+                pass
+            result = common[0][0]
         print("color_detector result : " + result)
         self.screen.draw_text_center(result, "detected")
         return result
