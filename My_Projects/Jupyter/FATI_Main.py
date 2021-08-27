@@ -106,7 +106,7 @@ class TeamOverload(object):
             print("qr resolver input : " + message)
             resolved = eval(message)
             result = "Left" if resolved % 2 == 0 else "Right"
-            print(f">> eval(message) is {resolved}, so turn {result}")
+            print(">> eval(message) is %d, so turn %s" % (resolved, result))
             try:
                 self.camera.show_image(image)
                 self.camera.clear_output()
