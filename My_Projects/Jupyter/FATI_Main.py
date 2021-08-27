@@ -39,8 +39,9 @@ class TeamOverload(object):
             self.demo_name = "M2_7381"
         else:
             print("demo_name argument " + self.demo_name + "detected!\n")
-        knn = ColorClassifier(demo_name=self.demo_name, user_name="Overload")
-        knn.fit("hsv")
+        self.knn = ColorClassifier(demo_name=self.demo_name, user_name="Overload")
+        self.knn.fit("hsv")
+        
         self.camera.start_camera()
         self.screen.draw_text_center("Team.Overload")
 
