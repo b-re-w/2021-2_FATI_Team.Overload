@@ -41,7 +41,7 @@ class TeamOverload(object):
             print("demo_name argument " + self.demo_name + "detected!\n")
         self.knn = ColorClassifier(demo_name=self.demo_name, user_name="Overload")
         self.knn.fit("hsv")
-        
+
         self.camera.start_camera()
         self.screen.draw_text_center("Team.Overload")
 
@@ -54,9 +54,8 @@ class TeamOverload(object):
         self.zumi.play_note(Note.D4)
         self.zumi.play_note(Note.E4)
 
-    def play_NextLevel(self):
+    def play_NextLevel(self, tempo=420):
         """"play aespa NextLevel"""
-        tempo = 420
         [self.zumi.play_note(n[0], n[1]*tempo) for n in [
             (Note.CS4, 0.5), (Note.FS4, 0.75), (Note.CS4, 1.75), (Note.FS4, 3),
             (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.E4, 1), (Note.FS4, 1),
@@ -82,7 +81,7 @@ class TeamOverload(object):
             for i in range(1, len+1, 1):
                 image = self.camera.capture()
                 predicts.append(self.knn.predict(image))
-                self.screen.draw_text_center(i + "/" + len)
+                self.screen.draw_text_center("%d/%d" % i, len)
             print(predicts)
             retry = False
             if unity:
