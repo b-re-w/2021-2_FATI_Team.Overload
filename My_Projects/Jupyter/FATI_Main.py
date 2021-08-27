@@ -175,6 +175,7 @@ class TeamOverload(object):
             self.zumi.stop()
             print("The interrupt button was pressed.")
         # end
+        self.qr_detector()
         self.print_face()
         self.play_NextLevel()
 
