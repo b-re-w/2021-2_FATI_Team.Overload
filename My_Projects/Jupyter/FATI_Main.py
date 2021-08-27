@@ -99,20 +99,20 @@ class TeamOverload(object):
         return result
 
     def qr_detector(self):
-        try:
-            for i in range(50):
-                frame = self.camera.capture()
-                self.vision.find_QR_code(frame)
-                self.camera.show_image(frame)
-                self.camera.clear_output()
-        finally:
-            print("Done!")
-
         image = self.camera.capture()
         qr_code = self.vision.find_QR_code(image)
-        message = self.vision.get_QR_message(qr_code)
-        print(message)
-        return message
+        if qr_code is not None:
+            message = self.vision.get_QR_message(qr_code)
+            print("qr resolver input : " + message)
+            resolved = eval(message)
+            result = "Left" if resolved % 2 == 0 else "Right"
+            print(f">> eval(message) is {resolved}, so turn {result}")
+            try:
+                self.camera.show_image(image)
+                self.camera.clear_output()
+            finally:
+                return result
+        return None
 
     def print_face(self):
         self.screen.draw_image_by_name("happy_left1")
@@ -125,9 +125,10 @@ class TeamOverload(object):
             목표 주차장을 제외한 다른 주차공간 통과시 각 00점
         """
         # before the zumi start
+        result = self.color_detector()
         self.play_DoReMi()
         # move forward
-        result = self.color_detector()
+
 
         # Drive the Zumi forward with speed 40 and 1 second duration. If anything is detected with the front IR sensors, Zumi will stop.
         self.zumi.forward_avoid_collision(speed=40, duration=1.0)
@@ -151,7 +152,28 @@ class TeamOverload(object):
             (주의 표정은 자신이 만든 간단히 웃는 표정을 만들어야합니다. 눈, 입 만 있으면 인정, 기존 라이브러리 사용 불가)
             (춤의 예 : 간단하게 Zumi가 5바퀴를 회전. )
         """
+        # move forward durung QR detecting
+        self.jumi.forward()
+        try:
+            threshold = 100
+            turnSpeed = 5
+            forwardSpeed = 7
 
+            while True:
+                bottom_right = self.zumi.read_IR('bottom_right')
+                bottom_left = self.zumi.read_IR('bottom_left')
+
+                if bottom_left < threshold and bottom_right < threshold:
+                    self.zumi.control_motors(forwardSpeed, forwardSpeed, 0)
+                elif bottom_left > threshold and bottom_right < threshold:
+                    self.zumi.control_motors(turnSpeed, 0, 0)
+                elif bottom_left < threshold and bottom_right > threshold:
+                    self.zumi.control_motors(0, turnSpeed, 0)
+                else:
+                    self.zumi.stop()
+        except KeyboardInterrupt:
+            self.zumi.stop()
+            print("The interrupt button was pressed.")
         # end
         self.print_face()
         self.play_NextLevel()
@@ -162,10 +184,10 @@ if __name__ == '__main__':
     fati = TeamOverload(sys.argv[1] if len(sys.argv) > 1 else None)
 
     # course A
-    fati.run_courseA()
+    #fati.run_courseA()
 
     # course B
-    fati.run_courseB()
+    #fati.run_courseB()
 
     # course C
     fati.run_courseC()

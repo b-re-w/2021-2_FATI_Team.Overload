@@ -299,7 +299,7 @@ class MPU:
 
         """
         Register DIV / 19
-        Determines sample rate by dividing the gyroscope output rate by the sent value. By default, the gyroscope 
+        Determines sample rate by dividing the gyroscope output rate by the sent value. By default, the gyroscope
         outputs at 8khz, the same as the internal oscillator
 
         Register PWR_M / 107
@@ -1138,7 +1138,7 @@ class Zumi:
         # find change in time
         dt = time.time() - self.PID_time_past
         # if dt > 0.1:
-        #     #make sure to cap the change in time 
+        #     #make sure to cap the change in time
         #     dt = 0.1
         self.PID_time_past = time.time()
 
@@ -1508,7 +1508,7 @@ class Zumi:
         '''
         #:param speed: the forward speed you want Zumi to drive at. Should only input a positive number
         #:param duration: number of seconds you want Zumi to try to drive forward
-        #:param desired_angle: the desired angle, defaults to None 
+        #:param desired_angle: the desired angle, defaults to None
         #       in order to drive in direction Zumi is facing.
         #:return: nothing
         '''
@@ -1555,7 +1555,7 @@ class Zumi:
         '''
         #:param speed: the forward speed you want Zumi to drive at. Should only input a positive number
         #:param duration: number of seconds you want Zumi to try to drive forward
-        #:param desired_angle: the desired angle, defaults to None 
+        #:param desired_angle: the desired angle, defaults to None
         #       in order to drive reverse in direction Zumi is facing.
         #:return: nothing
         '''
