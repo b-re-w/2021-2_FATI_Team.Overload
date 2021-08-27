@@ -153,7 +153,7 @@ class TeamOverload(object):
             (춤의 예 : 간단하게 Zumi가 5바퀴를 회전. )
         """
         # move forward durung QR detecting
-        self.jumi.forward()
+        #self.zumi.forward()
         try:
             threshold = 100
             turnSpeed = 5
