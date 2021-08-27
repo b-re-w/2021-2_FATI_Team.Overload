@@ -17,11 +17,13 @@
 
 
 import sys
+import time
 from collections import Counter
 
 from zumi.zumi import Zumi
 from zumi.protocol import Note  # to play sounds
 from zumi.util.camera import Camera
+from zumi.util.vision import Vision  # to recognize qr code
 from zumi.util.screen import Screen
 from zumi.util.color_classifier import ColorClassifier
 
@@ -29,6 +31,7 @@ from zumi.util.color_classifier import ColorClassifier
 class TeamOverload(object):
     def __init__(self, demo_name=None):
         self.camera = Camera()
+        self.vision = Vision()
         self.screen = Screen()
         self.zumi = Zumi()
 
@@ -52,21 +55,24 @@ class TeamOverload(object):
 
     def play_NextLevel(self):
         """"play aespa NextLevel"""
-        tempo = 684
-        song = [(Note.CS4, 1), (Note.FS4, 0.5), (Note.CS4, 3), (Note.FS4, 2),
-                (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.E4, 1), (Note.FS4, 1),
-                (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.E4, 1), (Note.FS4, 1),
-                (Note.CS4, 0.5), (Note.FS4, 0.5), (Note.CS4, 0.5), (Note.FS4, 1),
-                (Note.CS4, 1), (Note.FS4, 0.5), (Note.CS4, 3), (Note.FS4, 2),
-                (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.E4, 1), (Note.FS4, 1),
-                (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.E4, 1), (Note.FS4, 1),
-                (Note.FS2, 1), (Note.FS3, 1), (Note.FS2, 0.5), (Note.FS3, 0.5), (Note.A3, 1), (Note.B3, 1),
-                (Note.FS2, 1), (Note.FS3, 1), (Note.FS2, 0.5), (Note.FS3, 0.5), (Note.A3, 1), (Note.B3, 1),
-                (Note.FS2, 1), (Note.FS3, 1), (Note.FS2, 0.5), (Note.FS3, 0.5), (Note.A3, 1), (Note.B3, 1),
-                (Note.FS2, 1), (Note.FS3, 1), (Note.FS2, 0.5), (Note.FS3, 0.5), (Note.A3, 1), (Note.B3, 1)
-        ]
-        for n in song:
-            self.zumi.play_note(n[0], n[1])
+        tempo = 420
+        [self.zumi.play_note(n[0], n[1]*tempo) for n in [
+            (Note.CS4, 0.5), (Note.FS4, 0.75), (Note.CS4, 1.75), (Note.FS4, 3),
+            (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.E4, 1), (Note.FS4, 1),
+            (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.E4, 1), (Note.FS4, 1),
+            (Note.CS4, 0.5), (Note.FS4, 0.5), (Note.CS4, 0.5), (Note.FS4, 1),
+            (Note.CS4, 0.5), (Note.FS4, 0.75), (Note.CS4, 1.75), (Note.FS4, 3),
+            (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.E4, 1), (Note.FS4, 1),
+            (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.FS4, 0.5), (Note.E4, 0.5), (Note.FS4, 2.5),
+            (Note.FS2, 1), (Note.FS3, 1.25), (Note.FS2, 0.25), (Note.FS3, 0.75), (Note.A2, 1.25), (Note.B2, 1.5),
+            (Note.FS2, 1), (Note.FS3, 1.25), (Note.FS2, 0.25), (Note.FS3, 0.75), (Note.A2, 1.25), (Note.B2, 1.5),
+            (Note.FS2, 1), (Note.FS3, 1.25), (Note.FS2, 0.25), (Note.FS3, 0.75), (Note.A2, 1.25), (Note.B2, 1.5),
+            (Note.FS2, 1), (Note.FS3, 1.25), (Note.FS2, 0.25), (Note.FS3, 0.75), (Note.A2, 1.25), (Note.B2, 1.5),
+            (Note.FS2, 1), (Note.FS3, 1.25), (Note.FS2, 0.25), (Note.FS3, 0.75), (Note.A2, 1.25), (Note.B2, 1.5),
+            (Note.FS2, 1), (Note.FS3, 1.25), (Note.FS2, 0.25), (Note.FS3, 0.75), (Note.A2, 1.25), (Note.B2, 1.5),
+            (Note.FS2, 1), (Note.FS3, 1.25), (Note.FS2, 0.25), (Note.FS3, 0.75), (Note.A2, 1.25), (Note.B2, 1.5),
+            (Note.FS2, 1), (Note.FS3, 1.25), (Note.FS2, 0.25), (Note.FS3, 0.75), (Note.A2, 1.25), (Note.B2, 1.5)
+        ]]
 
     def color_detector(self, len=10, unity=True):
         retry = True
@@ -91,8 +97,24 @@ class TeamOverload(object):
         self.screen.draw_text_center(result, "detected")
         return result
 
+    def qr_detector(self):
+        try:
+            for i in range(50):
+                frame = self.camera.capture()
+                self.vision.find_QR_code(frame)
+                self.camera.show_image(frame)
+                self.camera.clear_output()
+        finally:
+            print("Done!")
+
+        image = self.camera.capture()
+        qr_code = self.vision.find_QR_code(image)
+        message = self.vision.get_QR_message(qr_code)
+        print(message)
+        return message
+
     def print_face(self):
-        self.screen.draw_image_by_name("happy_left1.ppm")
+        self.screen.draw_image_by_name("happy_left1")
 
     def run_courseA(self):
         """ 색상 카드를 읽어 해당 색상에 맞는 주차공간을 찾아 주차 (주차공간의 전면에 색상카드가 세워질 예정 - 전면카메라를 이용한 색깔 인식) - 00점
@@ -104,7 +126,10 @@ class TeamOverload(object):
         # before the zumi start
         self.play_DoReMi()
         # move forward
-        ##result = self.color_detector()
+        result = self.color_detector()
+
+        # Drive the Zumi forward with speed 40 and 1 second duration. If anything is detected with the front IR sensors, Zumi will stop.
+        self.zumi.forward_avoid_collision(speed=40, duration=1.0)
 
     def run_courseB(self):
         """ 빨강색 Color Card 를 이용해 B course 시작지점에 정차했다가 카드를 치우면 남은 B course를 올바르게 주행하는지. 00점
@@ -127,7 +152,7 @@ class TeamOverload(object):
         """
 
         # end
-        ##self.print_face()
+        self.print_face()
         self.play_NextLevel()
 
 
