@@ -81,7 +81,7 @@ class TeamOverload(object):
             for i in range(1, len+1, 1):
                 image = self.camera.capture()
                 predicts.append(self.knn.predict(image))
-                self.screen.draw_text_center("%d/%d" % i, len)
+                self.screen.draw_text_center("%d/%d" % (i, len))
             print(predicts)
             retry = False
             if unity:
