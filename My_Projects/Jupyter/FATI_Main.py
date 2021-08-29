@@ -143,8 +143,8 @@ class TeamOverload(object):
             while True:
                 front_r, bottom_r, _, bottom_l, _, front_l = get_data()
 
-                if frontsensor and (front_l < threshold or front_r < threshold) if not obstacle_detected else \
-                                   (front_l > threshold and front_r > threshold):
+                if frontsensor and (front_l > threshold or front_r > threshold) if not obstacle_detected else \
+                                   (front_l < threshold and front_r < threshold):
                     if frontsensor == 1:
                         raise KeyboardInterrupt
                     elif frontsensor == 2:
@@ -152,15 +152,15 @@ class TeamOverload(object):
                         forwardspd *= -1
                         obstacle_detected = not obstacle_detected
 
-                if bottom_l < threshold and bottom_r < threshold:  # both black
+                if bottom_l > threshold and bottom_r > threshold:  # both black
                     set_motors(forwardspd, forwardspd, 0)
                     if stopline_detected:
                         raise KeyboardInterrupt
-                elif bottom_l > threshold and bottom_r < threshold:  # left black
+                elif bottom_l < threshold and bottom_r > threshold:  # left black
                     set_motors(turnspd, 0, 0)  # turn left
                     if stopline_detected:
                         stopline_detected = 0
-                elif bottom_l < threshold and bottom_r > threshold:  # right black
+                elif bottom_l > threshold and bottom_r < threshold:  # right black
                     set_motors(0, turnspd, 0)  # turn right
                     if stopline_detected:
                         stopline_detected = 0
@@ -206,12 +206,12 @@ class TeamOverload(object):
             while True:
                 _, bottom_r, _, bottom_l, _, _ = get_data()
 
-                if bottom_l < threshold and bottom_r < threshold and (desired_angle is None or
+                if bottom_l > threshold and bottom_r > threshold and (desired_angle is None or
                    (desired_angle >= read_z() if "L" in turndir else desired_angle <= read_z())):
                     raise KeyboardInterrupt
-                elif bottom_l > threshold and bottom_r < threshold:  # left black
+                elif bottom_l < threshold and bottom_r > threshold:  # left black
                     set_motors(turnspd, 0, 0)  # turn left
-                elif bottom_l < threshold and bottom_r > threshold:  # right black
+                elif bottom_l > threshold and bottom_r < threshold:  # right black
                     set_motors(0, turnspd, 0)  # turn right
                 else:  # both white
                     if turndir == "Left":
