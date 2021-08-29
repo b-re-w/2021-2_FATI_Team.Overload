@@ -142,7 +142,7 @@ class TeamOverload(object):
         try:
             while True:
                 front_r, bottom_r, _, bottom_l, _, front_l = get_data()
-                print(get_data())
+                print((front_r, bottom_r, bottom_l, front_l))
 
                 if frontsensor and (front_l > threshold or front_r > threshold) if not obstacle_detected else \
                                    (front_l < threshold and front_r < threshold):
