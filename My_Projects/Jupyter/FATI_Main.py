@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ### Alias : FATI.Main.py & Last Modded : 2021.08.31. ###
+Zumi Library Reference : https://learn.robolink.com/docs/zumi-library
 
 2021 FATI 평가 방식
 -감점 요소 없이 0점부터 동작별 가산 점수를 부여함.
@@ -155,14 +156,17 @@ class TeamOverload(object):
 
                 if bottom_l > threshold and bottom_r > threshold:  # both black
                     set_motors(forwardspd, forwardspd, 0)
+                    print("set_motors(forwardspd, forwardspd)")
                     if stopline_detected:
                         raise KeyboardInterrupt
                 elif bottom_l < threshold and bottom_r > threshold:  # left black
                     set_motors(turnspd, 0, 0)  # turn left
+                    print("set_motors(turnspd, 0)")
                     if stopline_detected:
                         stopline_detected = 0
                 elif bottom_l > threshold and bottom_r < threshold:  # right black
                     set_motors(0, turnspd, 0)  # turn right
+                    print("set_motors(0, turnspd)")
                     if stopline_detected:
                         stopline_detected = 0
                 else:  # both white
