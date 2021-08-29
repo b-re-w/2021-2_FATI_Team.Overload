@@ -37,7 +37,7 @@ class TeamOverload(object):
         self.zumi = Zumi()
 
         if demo_name is None:
-            self.demo_name = ["", "Parking_50_8444", "M2_7381"]
+            self.demo_name = ["", "Parking_60_7381", "M2_7381"]
         else:
             print("demo_name argument " + self.demo_name + "detected!\n")
         self.knn_parking = ColorClassifier(demo_name=self.demo_name[1], user_name="Overload")
@@ -121,7 +121,7 @@ class TeamOverload(object):
         return None
 
     def print_face(self):
-        self.screen.draw_image_by_name("happy_left1")
+        self.screen.draw_image_by_name("zumi_face_by_overload")
 
     def trace_line(self, threshold=100, turnspd=5, forwardspd=7, stopsign=15, turndir="Stop", frontsensor=0):
         """do not run this method with threading/thread, use multiprocessing
@@ -235,20 +235,45 @@ class TeamOverload(object):
         result = self.color_detector(self.knn_parking)
         self.play_DoReMi()
 
+        def find_parkinglot(self=self, desired_angle="90"):
+            found = False
+
+            # turn to direction
+            self.turn_while_linetracing(desired_angle=desired_angle)
+
+            if self.color_detector(self.knn_parking) == result:
+                found = True
+
+                # park
+                start = time.time()
+                self.trace_line(turndir="None", frontsensor=1)
+                elapsed = time.time() - start
+                time.sleep(3)
+
+                # pull out
+                tracer = Process(target=self.trace_line, args=(self, 100, -5, -7, 15, "None", 1))
+                start = time.time()
+                tracer.start()
+                while elapsed >= time.time() - start:
+                    pass
+                tracer.terminate()
+                self.zumi.stop()
+                tracer.join()
+
+            # turn to direction
+            self.turn_while_linetracing(turnspd=-5, desired_angle=desired_angle*-1)
+            return found
 
         while True:  # loop until zumi ever parked
             # go until the stop line
             self.trace_line(turndir="None")
 
             # turn right
-            self.turn_while_linetracing(desired_angle="90")
-            if self.color_detector(self.knn_parking) == result:
-                pass
-
-
-            # turn left
-
-
+            if find_parkinglot(self, "90"):
+                break
+            else:  # turn left
+                if find_parkinglot(self, "-90"):
+                    break
 
     def run_courseB(self):
         """ 빨강색 Color Card 를 이용해 B course 시작지점에 정차했다가 카드를 치우면 남은 B course를 올바르게 주행하는지. 00점
