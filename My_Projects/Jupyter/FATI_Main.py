@@ -50,9 +50,11 @@ class TeamOverload(object):
         self.screen.draw_text_center("Team.Overload")
 
     def __del__(self):
-        self.camera.close()
-        self.zumi.stop()
-        print("------------- zumi stopped")
+        try:
+            self.camera.close()
+        finally:
+            self.zumi.stop()
+            print("------------- zumi stopped")
 
     def play_DoReMi(self):
         """play Do-Re-Mi"""
