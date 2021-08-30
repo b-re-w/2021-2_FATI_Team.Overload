@@ -124,7 +124,7 @@ class TeamOverload(object):
     def print_face(self):
         self.screen.draw_image_by_name("zumi_face_by_overload")
 
-    def trace_line(self, threshold=100, turnspd=5, forwardspd=7, stopsign=15, turndir="Stop", frontsensor=0):
+    def trace_line(self, threshold=100, turnspd=20, forwardspd=60, stopsign=15, turndir="Stop", frontsensor=0):
         """do not run this method with threading/thread, use multiprocessing
            turndir == "Stop" -> stop when both white
            turndir == "Left" -> turn left when both white
@@ -136,9 +136,22 @@ class TeamOverload(object):
         """
         get_data = self.zumi.get_all_IR_data
         set_motors = self.zumi.control_motors
+        drive = self.zumi.drive_at_angle
 
         stopline_detected = 0
         obstacle_detected = False
+
+        # PID Values
+        k_p = self.D_P
+        k_i = self.D_I
+        k_d = self.D_D
+        self.reset_PID()
+
+        # if no input find the z angle and go in that direction
+        desired_angle = self.read_z_angle()
+
+        max_speed = 127
+        accuracy = 1.0
 
         try:
             while True:
@@ -155,17 +168,20 @@ class TeamOverload(object):
                         obstacle_detected = not obstacle_detected
 
                 if bottom_l > threshold and bottom_r > threshold:  # both black
-                    set_motors(forwardspd, forwardspd, 0)
+                    drive(max_speed, forwardspd, desired_angle, k_p, k_d, k_i, accuracy)
+                    #set_motors(forwardspd, forwardspd)
                     print("set_motors(forwardspd, forwardspd)")
                     if stopline_detected:
                         raise KeyboardInterrupt
                 elif bottom_l < threshold and bottom_r > threshold:  # left black
-                    set_motors(turnspd, 0, 0)  # turn left
+                    drive(max_speed, turnspd, desired_angle-90, k_p, k_d, k_i, accuracy)
+                    #set_motors(turnspd, 0)  # turn left
                     print("set_motors(turnspd, 0)")
                     if stopline_detected:
                         stopline_detected = 0
                 elif bottom_l > threshold and bottom_r < threshold:  # right black
-                    set_motors(0, turnspd, 0)  # turn right
+                    drive(max_speed, turnspd, desired_angle+90, k_p, k_d, k_i, accuracy)
+                    #set_motors(0, turnspd)  # turn right
                     print("set_motors(0, turnspd)")
                     if stopline_detected:
                         stopline_detected = 0
@@ -174,11 +190,14 @@ class TeamOverload(object):
                     if stopline_detected >= stopsign // (forwardspd//2):
                         stopline_detected = 0
                         if turndir == "Left":
-                            set_motors(turnspd, 0, 0)  # turn left
+                            drive(max_speed, turnspd, desired_angle-90, k_p, k_d, k_i, accuracy)
+                            #set_motors(turnspd, 0)  # turn left
                         elif turndir == "Right":
-                            set_motors(0, turnspd, 0)  # turn right
+                            drive(max_speed, turnspd, desired_angle+90, k_p, k_d, k_i, accuracy)
+                            #set_motors(0, turnspd)  # turn right
                         elif turndir == "None":
-                            set_motors(turnspd, turnspd, 0)
+                            drive(max_speed, turnspd, desired_angle, k_p, k_d, k_i, accuracy)
+                            #set_motors(turnspd, turnspd)
                         else:
                             raise KeyboardInterrupt
         except KeyboardInterrupt:
