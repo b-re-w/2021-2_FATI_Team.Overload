@@ -135,7 +135,6 @@ class TeamOverload(object):
            frontsensor mode 2 -> reverse zumi when object detected (and restore when object is no longer detected)
         """
         get_data = self.zumi.get_all_IR_data
-        set_motors = self.zumi.control_motors
         drive = self.zumi.drive_at_angle
 
         stopline_detected = 0
@@ -153,55 +152,6 @@ class TeamOverload(object):
         max_speed = 127
         accuracy = 1.0
 
-
-
-
-
-        # update the angles and grab the Z angle
-        angles_now_list = self.zumi.update_angles()
-        angle_z = angles_now_list[2]
-
-        # calculate error values
-        error = desired_angle - angle_z
-        self.zumi.error_sum = self.zumi.error_sum + error
-
-        error_change = error - self.zumi.error_past
-        self.zumi.error_past = error
-
-        # find change in time
-        dt = time.time() - self.zumi.PID_time_past
-        # if dt > 0.1:
-        #     #make sure to cap the change in time
-        #     dt = 0.1
-        self.zumi.PID_time_past = time.time()
-
-        # PID components
-        e_p = (k_p * error)
-        e_d = (k_d * error_change / dt)
-        e_i = (k_i * self.zumi.error_sum * dt)
-        speed_offset = int(e_p + e_d + e_i)
-
-        # if within the error threshold set motors to 0 speed
-        if abs(error) < accuracy:
-            speed_offset = 0
-
-        # input speed for all functions that use drive_at_angle are capped at +-MAX_USER_SPEED=80
-        turnspd = self.zumi.clamp(int(turnspd), -1 * self.zumi.MAX_USER_SPEED, self.zumi.MAX_USER_SPEED)
-        forwardspd = self.zumi.clamp(int(forwardspd), -1 * self.zumi.MAX_USER_SPEED, self.zumi.MAX_USER_SPEED)
-
-        # make sure motor speeds never go above 127 or below - 127
-        final_turn_lspd = self.zumi.clamp(turnspd - speed_offset, -1 * max_speed, max_speed)
-        final_turn_rspd = self.zumi.clamp(turnspd + speed_offset, -1 * max_speed, max_speed)
-        final_forward_lspd = self.zumi.clamp(forwardspd - speed_offset, -1 * max_speed, max_speed)
-        final_forward_rspd = self.zumi.clamp(forwardspd + speed_offset, -1 * max_speed, max_speed)
-
-
-
-
-
-
-
-
         try:
             while True:
                 front_r, bottom_r, _, bottom_l, _, front_l = get_data()
@@ -217,21 +167,18 @@ class TeamOverload(object):
                         obstacle_detected = not obstacle_detected
 
                 if bottom_l > threshold and bottom_r > threshold:  # both black
-                    #drive(max_speed, forwardspd, desired_angle, k_p, k_d, k_i, accuracy)
-                    set_motors(final_forward_rspd, final_forward_lspd)
-                    print("set_motors(final_forward_rspd, final_forward_lspd)")
+                    drive(max_speed, forwardspd, desired_angle, k_p, k_d, k_i, accuracy)
+                    print("> go forward")
                     if stopline_detected:
                         raise KeyboardInterrupt
                 elif bottom_l < threshold and bottom_r > threshold:  # left black
-                    #drive(max_speed, turnspd, desired_angle-90, k_p, k_d, k_i, accuracy)
-                    set_motors(final_turn_rspd, 0)  # turn left
-                    print("set_motors(final_turn_rspd, 0)")
+                    drive(max_speed, turnspd, desired_angle-90, k_p, k_d, k_i, accuracy)
+                    print("> turn left")
                     if stopline_detected:
                         stopline_detected = 0
                 elif bottom_l > threshold and bottom_r < threshold:  # right black
-                    #drive(max_speed, turnspd, desired_angle+90, k_p, k_d, k_i, accuracy)
-                    set_motors(0, final_turn_lspd)  # turn right
-                    print("set_motors(0, final_turn_lspd)")
+                    drive(max_speed, turnspd, desired_angle+90, k_p, k_d, k_i, accuracy)
+                    print("> turn right")
                     if stopline_detected:
                         stopline_detected = 0
                 else:  # both white
@@ -239,17 +186,14 @@ class TeamOverload(object):
                     if stopline_detected >= stopsign // (forwardspd//2):
                         stopline_detected = 0
                         if turndir == "Left":
-                            #drive(max_speed, turnspd, desired_angle-90, k_p, k_d, k_i, accuracy)
-                            set_motors(final_turn_rspd, 0)  # turn left
-                            print("set_motors(final_turn_rspd, 0)")
+                            drive(max_speed, turnspd, desired_angle-90, k_p, k_d, k_i, accuracy)
+                            print("> turn left")
                         elif turndir == "Right":
-                            #drive(max_speed, turnspd, desired_angle+90, k_p, k_d, k_i, accuracy)
-                            set_motors(0, final_turn_lspd)  # turn right
-                            print("set_motors(0, final_turn_lspd)")
+                            drive(max_speed, turnspd, desired_angle+90, k_p, k_d, k_i, accuracy)
+                            print("> turn right")
                         elif turndir == "None":
-                            #drive(max_speed, turnspd, desired_angle, k_p, k_d, k_i, accuracy)
-                            set_motors(final_turn_rspd, final_turn_lspd)
-                            print("set_motors(final_turn_rspd, final_turn_lspd)")
+                            drive(max_speed, turnspd, desired_angle, k_p, k_d, k_i, accuracy)
+                            print("> go forward")
                         else:
                             raise KeyboardInterrupt
         except KeyboardInterrupt:
