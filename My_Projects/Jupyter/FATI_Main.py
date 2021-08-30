@@ -158,42 +158,42 @@ class TeamOverload(object):
 
 
         # update the angles and grab the Z angle
-        angles_now_list = self.update_angles()
+        angles_now_list = self.zumi.update_angles()
         angle_z = angles_now_list[2]
 
         # calculate error values
         error = desired_angle - angle_z
-        self.error_sum = self.error_sum + error
+        self.zumi.error_sum = self.zumi.error_sum + error
 
-        error_change = error - self.error_past
-        self.error_past = error
+        error_change = error - self.zumi.error_past
+        self.zumi.error_past = error
 
         # find change in time
-        dt = time.time() - self.PID_time_past
+        dt = time.time() - self.zumi.PID_time_past
         # if dt > 0.1:
         #     #make sure to cap the change in time
         #     dt = 0.1
-        self.PID_time_past = time.time()
+        self.zumi.PID_time_past = time.time()
 
         # PID components
         e_p = (k_p * error)
         e_d = (k_d * error_change / dt)
-        e_i = (k_i * self.error_sum * dt)
+        e_i = (k_i * self.zumi.error_sum * dt)
         speed_offset = int(e_p + e_d + e_i)
 
         # if within the error threshold set motors to 0 speed
-        if abs(error) < min_error:
+        if abs(error) < accuracy:
             speed_offset = 0
 
         # input speed for all functions that use drive_at_angle are capped at +-MAX_USER_SPEED=80
-        turnspd = self.clamp(int(turnspd), -1 * self.MAX_USER_SPEED, self.MAX_USER_SPEED)
-        forwardspd = self.clamp(int(forwardspd), -1 * self.MAX_USER_SPEED, self.MAX_USER_SPEED)
+        turnspd = self.zumi.clamp(int(turnspd), -1 * self.zumi.MAX_USER_SPEED, self.zumi.MAX_USER_SPEED)
+        forwardspd = self.zumi.clamp(int(forwardspd), -1 * self.zumi.MAX_USER_SPEED, self.zumi.MAX_USER_SPEED)
 
         # make sure motor speeds never go above 127 or below - 127
-        final_turn_lspd = self.clamp(turnspd - speed_offset, -1 * max_speed, max_speed)
-        final_turn_rspd = self.clamp(turnspd + speed_offset, -1 * max_speed, max_speed)
-        final_forward_lspd = self.clamp(forwardspd - speed_offset, -1 * max_speed, max_speed)
-        final_forward_rspd = self.clamp(forwardspd + speed_offset, -1 * max_speed, max_speed)
+        final_turn_lspd = self.zumi.clamp(turnspd - speed_offset, -1 * max_speed, max_speed)
+        final_turn_rspd = self.zumi.clamp(turnspd + speed_offset, -1 * max_speed, max_speed)
+        final_forward_lspd = self.zumi.clamp(forwardspd - speed_offset, -1 * max_speed, max_speed)
+        final_forward_rspd = self.zumi.clamp(forwardspd + speed_offset, -1 * max_speed, max_speed)
 
 
 
