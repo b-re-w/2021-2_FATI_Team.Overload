@@ -138,6 +138,7 @@ class TeamOverload(object):
         """
         get_data = self.zumi.get_all_IR_data
         drive = self.zumi.drive_at_angle
+        read_z = self.zumi.read_z_angle
 
         stopline_detected = 0
         obstacle_detected = False
@@ -147,9 +148,6 @@ class TeamOverload(object):
         k_i = self.zumi.D_I
         k_d = self.zumi.D_D
         self.zumi.reset_PID()
-
-        # if no input find the z angle and go in that direction
-        desired_angle = self.zumi.read_z_angle()
 
         max_speed = 127
         accuracy = 1.0
@@ -169,17 +167,17 @@ class TeamOverload(object):
                         obstacle_detected = not obstacle_detected
 
                 if bottom_l > threshold and bottom_r > threshold:  # both black
-                    drive(max_speed, forwardspd, desired_angle, k_p, k_d, k_i, accuracy)
+                    drive(max_speed, forwardspd, read_z(), k_p, k_d, k_i, accuracy)
                     print("> go forward")
                     if stopline_detected:
                         raise KeyboardInterrupt
                 elif bottom_l < threshold and bottom_r > threshold:  # left black
-                    drive(turnspd, 0, desired_angle+10, k_p, k_d, k_i, accuracy)
+                    drive(turnspd, 0, read_z()+10, k_p, k_d, k_i, accuracy)
                     print("> turn left")
                     if stopline_detected:
                         stopline_detected = 0
                 elif bottom_l > threshold and bottom_r < threshold:  # right black
-                    drive(turnspd, 0, desired_angle-10, k_p, k_d, k_i, accuracy)
+                    drive(turnspd, 0, read_z()-10, k_p, k_d, k_i, accuracy)
                     print("> turn right")
                     if stopline_detected:
                         stopline_detected = 0
@@ -189,13 +187,13 @@ class TeamOverload(object):
                     if stopline_detected >= stopsign // (forwardspd//2):
                         stopline_detected = 0
                         if turndir == "Left":
-                            drive(turnspd, 0, desired_angle+10, k_p, k_d, k_i, accuracy)
+                            drive(turnspd, 0, read_z()+10, k_p, k_d, k_i, accuracy)
                             print("> stopline_detected && turn left")
                         elif turndir == "Right":
-                            drive(turnspd, 0, desired_angle-10, k_p, k_d, k_i, accuracy)
+                            drive(turnspd, 0, read_z()-10, k_p, k_d, k_i, accuracy)
                             print("> stopline_detected && turn right")
                         elif turndir == "None":
-                            drive(max_speed, turnspd, desired_angle, k_p, k_d, k_i, accuracy)
+                            drive(max_speed, turnspd, read_z(), k_p, k_d, k_i, accuracy)
                             print("> stopline_detected && go forward")
                         else:
                             raise KeyboardInterrupt
