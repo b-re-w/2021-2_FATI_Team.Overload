@@ -185,17 +185,18 @@ class TeamOverload(object):
                         stopline_detected = 0
                 else:  # both white
                     stopline_detected += 1
+                    print(">> stopline_detected")
                     if stopline_detected >= stopsign // (forwardspd//2):
                         stopline_detected = 0
                         if turndir == "Left":
                             drive(turnspd, 0, desired_angle+10, k_p, k_d, k_i, accuracy)
-                            print("> turn left")
+                            print("> stopline_detected && turn left")
                         elif turndir == "Right":
                             drive(turnspd, 0, desired_angle-10, k_p, k_d, k_i, accuracy)
-                            print("> turn right")
+                            print("> stopline_detected && turn right")
                         elif turndir == "None":
                             drive(max_speed, turnspd, desired_angle, k_p, k_d, k_i, accuracy)
-                            print("> go forward")
+                            print("> stopline_detected && go forward")
                         else:
                             raise KeyboardInterrupt
         except KeyboardInterrupt:
