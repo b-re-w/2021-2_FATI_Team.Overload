@@ -126,7 +126,7 @@ class TeamOverload(object):
     def print_face(self):
         self.screen.draw_image_by_name("zumi_face_by_overload")
 
-    def trace_line(self, threshold=100, turnspd=25, forwardspd=40, stopsign=15, turndir="Stop", frontsensor=0):
+    def trace_line(self, threshold=100, turnspd=5, forwardspd=10, stopsign=15, turndir="Stop", frontsensor=0):
         """do not run this method with threading/thread, use multiprocessing
            turndir == "Stop" -> stop when both white
            turndir == "Left" -> turn left when both white
@@ -172,12 +172,12 @@ class TeamOverload(object):
                     if stopline_detected:
                         raise KeyboardInterrupt
                 elif bottom_l < threshold and bottom_r > threshold:  # left white
-                    drive(turnspd, 0, read_z()-10, k_p, k_d, k_i, accuracy)
+                    drive(turnspd, 0, read_z()-5, k_p, k_d, k_i, accuracy)
                     print("> turn right")
                     if stopline_detected:
                         stopline_detected = 0
                 elif bottom_l > threshold and bottom_r < threshold:  # right white
-                    drive(turnspd, 0, read_z()+10, k_p, k_d, k_i, accuracy)
+                    drive(turnspd, 0, read_z()+5, k_p, k_d, k_i, accuracy)
                     print("> turn left")
                     if stopline_detected:
                         stopline_detected = 0
@@ -187,10 +187,10 @@ class TeamOverload(object):
                     if stopline_detected >= stopsign // (forwardspd//2):
                         stopline_detected = 0
                         if turndir == "Left":
-                            drive(turnspd, 0, read_z()+10, k_p, k_d, k_i, accuracy)
+                            drive(turnspd, 0, read_z()+5, k_p, k_d, k_i, accuracy)
                             print("> stopline_detected && turn left")
                         elif turndir == "Right":
-                            drive(turnspd, 0, read_z()-10, k_p, k_d, k_i, accuracy)
+                            drive(turnspd, 0, read_z()-5, k_p, k_d, k_i, accuracy)
                             print("> stopline_detected && turn right")
                         elif turndir == "None":
                             drive(max_speed, turnspd, read_z(), k_p, k_d, k_i, accuracy)
