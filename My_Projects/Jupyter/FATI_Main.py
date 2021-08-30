@@ -142,13 +142,13 @@ class TeamOverload(object):
         obstacle_detected = False
 
         # PID Values
-        k_p = self.D_P
-        k_i = self.D_I
-        k_d = self.D_D
-        self.reset_PID()
+        k_p = self.zumi.D_P
+        k_i = self.zumi.D_I
+        k_d = self.zumi.D_D
+        self.zumi.reset_PID()
 
         # if no input find the z angle and go in that direction
-        desired_angle = self.read_z_angle()
+        desired_angle = self.zumi.read_z_angle()
 
         max_speed = 127
         accuracy = 1.0
