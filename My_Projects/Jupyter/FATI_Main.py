@@ -142,6 +142,7 @@ class TeamOverload(object):
 
         stopline_detected = 0
         obstacle_detected = False
+        drive_mode = -1
 
         # PID Values
         k_p = self.zumi.D_P
@@ -167,17 +168,23 @@ class TeamOverload(object):
                         obstacle_detected = not obstacle_detected
 
                 if bottom_l > threshold and bottom_r > threshold:  # both black
-                    drive(max_speed, forwardspd, read_z(), k_p, k_d, k_i, accuracy)
+                    if drive_mode != 0:
+                        drive(max_speed, forwardspd, read_z(), k_p, k_d, k_i, accuracy)
+                        drive_mode = 0
                     print("> go forward")
                     if stopline_detected:
                         raise KeyboardInterrupt
                 elif bottom_l < threshold and bottom_r > threshold:  # left white
-                    drive(turnspd, 0, read_z()-5, k_p, k_d, k_i, accuracy)
+                    if drive_mode != 1:
+                        drive(turnspd, 0, read_z()-5, k_p, k_d, k_i, accuracy)
+                        drive_mode = 1
                     print("> turn right")
                     if stopline_detected:
                         stopline_detected = 0
                 elif bottom_l > threshold and bottom_r < threshold:  # right white
-                    drive(turnspd, 0, read_z()+5, k_p, k_d, k_i, accuracy)
+                    if drive_mode != 2:
+                        drive(turnspd, 0, read_z()+5, k_p, k_d, k_i, accuracy)
+                        drive_mode = 2
                     print("> turn left")
                     if stopline_detected:
                         stopline_detected = 0
@@ -187,13 +194,19 @@ class TeamOverload(object):
                     if stopline_detected >= stopsign // (forwardspd//2):
                         stopline_detected = 0
                         if turndir == "Left":
-                            drive(turnspd, 0, read_z()+5, k_p, k_d, k_i, accuracy)
+                            if drive_mode != 3:
+                                drive(turnspd, 0, read_z()+5, k_p, k_d, k_i, accuracy)
+                                drive_mode = 3
                             print("> stopline_detected && turn left")
                         elif turndir == "Right":
-                            drive(turnspd, 0, read_z()-5, k_p, k_d, k_i, accuracy)
+                            if drive_mode != 4:
+                                drive(turnspd, 0, read_z()-5, k_p, k_d, k_i, accuracy)
+                                drive_mode = 4
                             print("> stopline_detected && turn right")
                         elif turndir == "None":
-                            drive(max_speed, turnspd, read_z(), k_p, k_d, k_i, accuracy)
+                            if drive_mode != 5:
+                                drive(max_speed, turnspd, read_z(), k_p, k_d, k_i, accuracy)
+                                drive_mode = 5
                             print("> stopline_detected && go forward")
                         else:
                             raise KeyboardInterrupt
