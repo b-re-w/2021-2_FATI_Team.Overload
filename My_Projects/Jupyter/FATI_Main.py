@@ -171,14 +171,14 @@ class TeamOverload(object):
                     print("> go forward")
                     if stopline_detected:
                         raise KeyboardInterrupt
-                elif bottom_l < threshold and bottom_r > threshold:  # left black
-                    drive(turnspd, 0, read_z()+10, k_p, k_d, k_i, accuracy)
-                    print("> turn left")
-                    if stopline_detected:
-                        stopline_detected = 0
-                elif bottom_l > threshold and bottom_r < threshold:  # right black
+                elif bottom_l < threshold and bottom_r > threshold:  # left white
                     drive(turnspd, 0, read_z()-10, k_p, k_d, k_i, accuracy)
                     print("> turn right")
+                    if stopline_detected:
+                        stopline_detected = 0
+                elif bottom_l > threshold and bottom_r < threshold:  # right white
+                    drive(turnspd, 0, read_z()+10, k_p, k_d, k_i, accuracy)
+                    print("> turn left")
                     if stopline_detected:
                         stopline_detected = 0
                 else:  # both white
