@@ -20,7 +20,7 @@ Zumi Library Reference : https://learn.robolink.com/docs/zumi-library
 import sys
 import time
 from collections import Counter
-from multiprocessing import Process
+from multiprocessing import Process, Manager
 
 from zumi.zumi import Zumi
 from zumi.protocol import Note  # to play sounds
@@ -141,7 +141,7 @@ class TeamOverload(object):
         read_z = self.zumi.read_z_angle
 
         stopline_detected = 0
-        drive_mode = [0, False]  # [mode, obstacle_detected]
+        drive_mode = Manager([0, False])  # [mode, obstacle_detected]
 
         watch_dog = None
         driver = None
