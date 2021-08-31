@@ -134,7 +134,7 @@ class TeamOverload(object):
     def print_face(self):
         self.screen.draw_image_by_name("zumi_face_by_overload")
 
-    def trace_line(self, threshold=100, turnspd=5, forwardspd=10, stopsign=15, turndir="Stop", frontsensor=0, motordiff=2):
+    def trace_line(self, threshold=100, turnspd=5, forwardspd=10, stopsign=15, turndir="Stop", frontsensor=0, motordiff=12):
         """do not run this method with threading/thread/multiprocessing
            turndir == "Stop" -> stop when both white
            turndir == "Left" -> turn left when both white
@@ -175,14 +175,14 @@ class TeamOverload(object):
                         raise KeyboardInterrupt
                 elif bottom_l < threshold and bottom_r > threshold:  # left white
                     if drive_mode != 2:
-                        set_motors(0, turnspd+motordiff, 0)  # turn right
+                        set_motors(-2, turnspd+motordiff, 0)  # turn right
                         drive_mode = 2
                         print("> turn right")
                     if stopline_detected:
                         stopline_detected = 0
                 elif bottom_l > threshold and bottom_r < threshold:  # right white
                     if drive_mode != 3:
-                        set_motors(turnspd, 0, 0)  # turn left
+                        set_motors(turnspd, -2-motordiff, 0)  # turn left
                         drive_mode = 3
                         print("> turn left")
                     if stopline_detected:
@@ -193,12 +193,12 @@ class TeamOverload(object):
                         stopline_detected = 0
                         if turndir == "Left":
                             if drive_mode != 4:
-                                set_motors(turnspd, 0, 0)  # turn left
+                                set_motors(turnspd, -2-motordiff, 0)  # turn left
                                 drive_mode = 4
                                 print("> stopline_detected && turn left")
                         elif turndir == "Right":
                             if drive_mode != 5:
-                                set_motors(0, turnspd+motordiff, 0)  # turn right
+                                set_motors(-2, turnspd+motordiff, 0)  # turn right
                                 drive_mode = 5
                                 print("> stopline_detected && turn right")
                         elif turndir == "None":
