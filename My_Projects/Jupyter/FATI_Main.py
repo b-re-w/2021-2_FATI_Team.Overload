@@ -164,17 +164,19 @@ class TeamOverload(object):
                     elif mode == 0:
                         self.zumi.stop()
 
-            dvm = [None, None]
+            dvm = [None, None]  # [drive_mode, obstacle_detected]
             while True:
                 if dvm[0] != drive_mode or dvm[1] != obstacle_detected:
                     try:
                         driver.terminate()
                         driver.join()
+                        print("driver was terminated.")
                     except Exception:
                         pass
                     dvm = [drive_mode, obstacle_detected]
                     driver = Process(target=drive, args=(dvm[0], turngap, dvm[1]))
                     driver.start()
+                    print("driver was started.")
 
         watch_dog = Process(target=watchdog, args=(driver, ))
         watch_dog.start()
