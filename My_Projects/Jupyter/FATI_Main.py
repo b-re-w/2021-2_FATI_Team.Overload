@@ -134,7 +134,68 @@ class TeamOverload(object):
     def print_face(self):
         self.screen.draw_image_by_name("zumi_face_by_overload")
 
-    def trace_line(self, threshold=100, turnspd=5, forwardspd=10, stopsign=15, turndir="Stop", frontsensor=0):
+    def trace_line(self, threshold=100, turnspd=5, forwardspd=10, stopsign=15, turndir="Stop", frontsensor=0, motordiff=2):
+        """do not run this method with threading/thread/multiprocessing
+           turndir == "Stop" -> stop when both white
+           turndir == "Left" -> turn left when both white
+           turndir == "Right" -> turn right when both white
+           turndir == "None" -> go forward when both white
+           frontsensor mode 0 -> disable front sensor
+           frontsensor mode 1 -> stop zumi when object detected
+           frontsensor mode 2 -> reverse zumi when object detected (and restore when object is no longer detected)
+        """
+        get_data = self.zumi.get_all_IR_data
+        set_motors = self.zumi.control_motors
+
+        stopline_detected = 0
+        obstacle_detected = False
+
+        try:
+            while True:
+                front_r, bottom_r, _, bottom_l, _, front_l = get_data()
+                print((front_r, bottom_r, bottom_l, front_l))
+
+                if frontsensor and (front_l > threshold or front_r > threshold) if not obstacle_detected else \
+                                   (front_l < threshold and front_r < threshold):
+                    if frontsensor == 1:
+                        raise KeyboardInterrupt
+                    elif frontsensor == 2:
+                        turnspd *= -1
+                        forwardspd *= -1
+                        obstacle_detected = not obstacle_detected
+
+                if bottom_l > threshold and bottom_r > threshold:  # both black
+                    set_motors(forwardspd, forwardspd+motordiff, 0)
+                    print("set_motors(forwardspd, forwardspd)")
+                    if stopline_detected:
+                        raise KeyboardInterrupt
+                elif bottom_l < threshold and bottom_r > threshold:  # left white
+                    set_motors(0, turnspd+motordiff, 0)  # turn right
+                    print("set_motors(0, turnspd)")
+                    if stopline_detected:
+                        stopline_detected = 0
+                elif bottom_l > threshold and bottom_r < threshold:  # right white
+                    set_motors(turnspd, 0, 0)  # turn left
+                    print("set_motors(turnspd, 0)")
+                    if stopline_detected:
+                        stopline_detected = 0
+                else:  # both white
+                    stopline_detected += 1
+                    if stopline_detected >= stopsign // (forwardspd//2):
+                        stopline_detected = 0
+                        if turndir == "Left":
+                            set_motors(turnspd, 0, 0)  # turn left
+                        elif turndir == "Right":
+                            set_motors(0, turnspd+motordiff, 0)  # turn right
+                        elif turndir == "None":
+                            set_motors(turnspd, turnspd+motordiff, 0)
+                        else:
+                            raise KeyboardInterrupt
+        except KeyboardInterrupt:
+            self.zumi.stop()
+            print("-- a stop sign found --")
+
+    def trace_line_PID(self, threshold=100, turnspd=5, forwardspd=10, stopsign=15, turndir="Stop", frontsensor=0):
         """do not run this method with threading/thread/multiprocessing
            turndir == "Stop" -> stop when both white
            turndir == "Left" -> turn left when both white
