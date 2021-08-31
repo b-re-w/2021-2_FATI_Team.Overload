@@ -143,7 +143,6 @@ class TeamOverload(object):
         stopline_detected = 0
         drive_mode = Array('i', (0, 0))#Manager().list([0, False])  # [mode, obstacle_detected]
 
-        watch_dog = None
         driver = None
 
         def drive(mode, gap, desired_angle, reverse=False):
