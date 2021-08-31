@@ -171,6 +171,7 @@ class TeamOverload(object):
             dvm = [None, None]  # [drive_mode, obstacle_detected]
             while True:
                 print("watchdog:", drive_mode)
+                print(id(drive_mode))
                 if dvm[0] != drive_mode[0] or dvm[1] != drive_mode[1]:
                     try:
                         driver.terminate()
@@ -190,6 +191,7 @@ class TeamOverload(object):
             while True:
                 front_r, bottom_r, _, bottom_l, _, front_l = get_data()
                 print((front_r, bottom_r, bottom_l, front_l))
+                print(id(drive_mode))
 
                 if frontsensor and (front_l > threshold or front_r > threshold) if not drive_mode[1] else \
                                    (front_l < threshold and front_r < threshold):
