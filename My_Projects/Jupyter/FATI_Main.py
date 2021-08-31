@@ -182,7 +182,7 @@ class TeamOverload(object):
                         stopline_detected = 0
                 elif bottom_l >= threshold and bottom_r < threshold:  # right white
                     if drive_mode != 3:
-                        set_motors(turnspd, -2-motordiff, 0)  # turn left
+                        set_motors(turnspd, -(2+abs(motordiff)), 0)  # turn left
                         drive_mode = 3
                         print("> turn left")
                     if stopline_detected:
@@ -194,7 +194,7 @@ class TeamOverload(object):
                         stopline_detected = 0
                         if turndir == "Left":
                             if drive_mode != 4:
-                                set_motors(turnspd, -2-motordiff, 0)  # turn left
+                                set_motors(turnspd, -(2+abs(motordiff)), 0)  # turn left
                                 drive_mode = 4
                                 print("> stopline_detected && turn left")
                         elif turndir == "Right":
