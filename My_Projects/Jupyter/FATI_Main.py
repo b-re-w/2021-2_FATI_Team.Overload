@@ -167,23 +167,23 @@ class TeamOverload(object):
                         obstacle_detected = not obstacle_detected
 
                 if bottom_l > threshold and bottom_r > threshold:  # both black
-                    if drive_mode != 0:
+                    if drive_mode != 1:
                         set_motors(forwardspd, forwardspd+motordiff, 0)
-                        drive_mode = 0
+                        drive_mode = 1
                         print("> go forward")
                     if stopline_detected:
                         raise KeyboardInterrupt
                 elif bottom_l < threshold and bottom_r > threshold:  # left white
-                    if drive_mode != 1:
+                    if drive_mode != 2:
                         set_motors(0, turnspd+motordiff, 0)  # turn right
-                        drive_mode = 1
+                        drive_mode = 2
                         print("> turn right")
                     if stopline_detected:
                         stopline_detected = 0
                 elif bottom_l > threshold and bottom_r < threshold:  # right white
-                    if drive_mode != 2:
+                    if drive_mode != 3:
                         set_motors(turnspd, 0, 0)  # turn left
-                        drive_mode = 2
+                        drive_mode = 3
                         print("> turn left")
                     if stopline_detected:
                         stopline_detected = 0
@@ -192,19 +192,19 @@ class TeamOverload(object):
                     if stopline_detected >= stopsign // (forwardspd//2):
                         stopline_detected = 0
                         if turndir == "Left":
-                            if drive_mode != 3:
+                            if drive_mode != 4:
                                 set_motors(turnspd, 0, 0)  # turn left
-                                drive_mode = 3
+                                drive_mode = 4
                                 print("> stopline_detected && turn left")
                         elif turndir == "Right":
-                            if drive_mode != 4:
+                            if drive_mode != 5:
                                 set_motors(0, turnspd+motordiff, 0)  # turn right
-                                drive_mode = 4
+                                drive_mode = 5
                                 print("> stopline_detected && turn right")
                         elif turndir == "None":
-                            if drive_mode != 5:
+                            if drive_mode != 6:
                                 set_motors(turnspd, turnspd+motordiff, 0)
-                                drive_mode = 5
+                                drive_mode = 6
                                 print("> stopline_detected && go forward")
                         else:
                             raise KeyboardInterrupt
