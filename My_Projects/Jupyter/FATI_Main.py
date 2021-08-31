@@ -154,19 +154,19 @@ class TeamOverload(object):
                 while True:
                     if mode == 1:
                         go(forwardspd, duration)
-                        print("driver status: go")
+                        #print("driver status: go")
                     elif mode == 2 or mode == 4:  # turn right
                         self.zumi.turn(desired_angle-abs(gap), duration, turnspd)
-                        print("driver status: go right")
+                        #print("driver status: go right")
                     elif mode == 3 or mode == 5:  # turn left
                         self.zumi.turn(desired_angle+abs(gap), duration, turnspd)
-                        print("driver status: go left")
+                        #print("driver status: go left")
                     elif mode == 6:
                         go(turnspd, duration)
-                        print("driver status: go")
+                        #print("driver status: go")
                     elif mode == 0:
                         self.zumi.stop()
-                        print("driver status: stop")
+                        #print("driver status: stop")
 
             dvm = [None, None]  # [drive_mode, obstacle_detected]
             while True:
@@ -176,14 +176,14 @@ class TeamOverload(object):
                     try:
                         driver.terminate()
                         driver.join()
-                        print("driver was terminated.")
+                        #print("driver was terminated.")
                     except Exception:
                         pass
                     dvm[0] = drive_mode[0]
                     dvm[1] = drive_mode[1]
                     driver = Process(target=drive, args=(dvm[0], turngap, dvm[1]))
                     driver.start()
-                    print("driver was started.")
+                    #print("driver was started.")
 
         watch_dog = Process(target=watchdog, args=(driver, ))
         watch_dog.start()
@@ -191,6 +191,7 @@ class TeamOverload(object):
             while True:
                 front_r, bottom_r, _, bottom_l, _, front_l = get_data()
                 print((front_r, bottom_r, bottom_l, front_l))
+                print("linetracer:", drive_mode)
                 print(id(drive_mode))
 
                 if frontsensor and (front_l > threshold or front_r > threshold) if not drive_mode[1] else \
@@ -203,38 +204,38 @@ class TeamOverload(object):
                 if bottom_l > threshold and bottom_r > threshold:  # both black
                     if drive_mode[0] != 1:
                         drive_mode[0] = 1
-                        print("> go forward")
+                        #print("> go forward")
                     if stopline_detected:
                         raise KeyboardInterrupt
                 elif bottom_l < threshold and bottom_r > threshold:  # left white
                     if drive_mode[0] != 2:
                         drive_mode[0] = 2
-                        print("> turn right")
+                        #print("> turn right")
                     if stopline_detected:
                         stopline_detected = 0
                 elif bottom_l > threshold and bottom_r < threshold:  # right white
                     if drive_mode[0] != 3:
                         drive_mode[0] = 3
-                        print("> turn left")
+                        #print("> turn left")
                     if stopline_detected:
                         stopline_detected = 0
                 else:  # both white
                     stopline_detected += 1
-                    print(">> stopline_detected")
+                    #print(">> stopline_detected")
                     if stopline_detected >= stopsign // (forwardspd//2):
                         stopline_detected = 0
                         if turndir == "Left":
                             if drive_mode[0] != 4:
                                 drive_mode[0] = 4
-                                print("> stopline_detected && turn left")
+                                #print("> stopline_detected && turn left")
                         elif turndir == "Right":
                             if drive_mode[0] != 5:
                                 drive_mode[0] = 5
-                                print("> stopline_detected && turn right")
+                                #print("> stopline_detected && turn right")
                         elif turndir == "None":
                             if drive_mode[0] != 6:
                                 drive_mode[0] = 6
-                                print("> stopline_detected && go forward")
+                                #print("> stopline_detected && go forward")
                         else:
                             raise KeyboardInterrupt
         except KeyboardInterrupt:
