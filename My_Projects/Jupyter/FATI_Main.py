@@ -146,8 +146,8 @@ class TeamOverload(object):
         watch_dog = None
         driver = None
 
-        def watchdog(driver):
-            def drive(mode, gap, desired_angle, reverse=False):
+        def drive(mode, gap, desired_angle, reverse=False):
+            try:
                 duration = 10000
                 go = self.zumi.forward if not reverse else self.zumi.reverse
                 while True:
@@ -166,32 +166,14 @@ class TeamOverload(object):
                     elif mode == 0:
                         self.zumi.stop()
                         print("driver status: stop")
+            except KeyboardInterrupt:
+                raise KeyboardInterrupt
 
-            dvm = [None, None]  # [drive_mode, obstacle_detected]
-            while True:
-                #print("watchdog: %d, %d" % (drive_mode[0], drive_mode[1]))
-                #print(id(drive_mode))
-                if dvm[0] != drive_mode[0] or dvm[1] != drive_mode[1]:
-                    try:
-                        driver.terminate()
-                        driver.join()
-                        print("driver was terminated.")
-                    except Exception:
-                        pass
-                    dvm[0] = drive_mode[0]
-                    dvm[1] = drive_mode[1]
-                    driver = Process(target=drive, args=(dvm[0], turngap, read_z(), dvm[1]))
-                    driver.start()
-                    print("driver was started.")
-
-        watch_dog = Process(target=watchdog, args=(driver, ))
-        watch_dog.start()
+        dvm = [None, None]  # [drive_mode, obstacle_detected]
         try:
             while True:
                 front_r, bottom_r, _, bottom_l, _, front_l = get_data()
                 print((front_r, bottom_r, bottom_l, front_l))
-                #print("linetracer: %d, %d" % (drive_mode[0], drive_mode[1]))
-                #print(id(drive_mode))
 
                 if frontsensor and (front_l > threshold or front_r > threshold) if not drive_mode[1] else \
                                    (front_l < threshold and front_r < threshold):
@@ -237,9 +219,20 @@ class TeamOverload(object):
                                 print("> stopline_detected && go forward")
                         else:
                             raise KeyboardInterrupt
+
+                if dvm[0] != drive_mode[0] or dvm[1] != drive_mode[1]:
+                    try:
+                        driver.terminate()
+                        driver.join()
+                        print("driver was terminated.")
+                    except Exception:
+                        print("driver init")
+                    dvm[0] = drive_mode[0]
+                    dvm[1] = drive_mode[1]
+                    driver = Process(target=drive, args=(dvm[0], turngap, read_z(), dvm[1]))
+                    driver.start()
+                    print("driver was started.")
         except KeyboardInterrupt:
-            watch_dog.terminate()
-            watch_dog.join()
             try:
                 driver.terminate()
                 driver.join()
