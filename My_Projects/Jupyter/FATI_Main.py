@@ -141,7 +141,7 @@ class TeamOverload(object):
         read_z = self.zumi.read_z_angle
 
         stopline_detected = 0
-        drive_mode = Manager.list([0, False])  # [mode, obstacle_detected]
+        drive_mode = Manager().list([0, False])  # [mode, obstacle_detected]
 
         watch_dog = None
         driver = None
