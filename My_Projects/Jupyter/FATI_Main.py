@@ -52,9 +52,10 @@ class TeamOverload(object):
     def __del__(self):
         try:
             self.camera.close()
-        finally:
-            self.zumi.stop()
-            print("------------- zumi stopped")
+        except Exception:
+            pass
+        self.zumi.stop()
+        print("------------- zumi stopped")
 
     def play_DoReMi(self):
         """play Do-Re-Mi"""
@@ -126,7 +127,7 @@ class TeamOverload(object):
     def print_face(self):
         self.screen.draw_image_by_name("zumi_face_by_overload")
 
-    def trace_line(self, threshold=100, turnspd=5, forwardspd=10, stopsign=15, turndir="Stop", frontsensor=0):
+    def trace_line(self, threshold=100, turnspd=5, forwardspd=10, stopsign=15, turndir="Stop", turngap=90, frontsensor=0):
         """do not run this method with threading/thread, use multiprocessing
            turndir == "Stop" -> stop when both white
            turndir == "Left" -> turn left when both white
@@ -137,22 +138,46 @@ class TeamOverload(object):
            frontsensor mode 2 -> reverse zumi when object detected (and restore when object is no longer detected)
         """
         get_data = self.zumi.get_all_IR_data
-        drive = self.zumi.drive_at_angle
         read_z = self.zumi.read_z_angle
 
         stopline_detected = 0
         obstacle_detected = False
-        drive_mode = -1
+        drive_mode = 0
 
-        # PID Values
-        k_p = self.zumi.D_P
-        k_i = self.zumi.D_I
-        k_d = self.zumi.D_D
-        self.zumi.reset_PID()
+        watch_dog = None
+        driver = None
 
-        max_speed = 127
-        accuracy = 1.0
+        def watchdog(driver):
+            def drive(mode, gap, reverse=False):
+                duration = 10000
+                desired_angle = read_z()
+                go = self.zumi.forward if not reverse else self.zumi.reverse
+                while True:
+                    if mode == 1:
+                        go(forwardspd, duration)
+                    elif mode == 2 or mode == 4:  # turn right
+                        self.zumi.turn(desired_angle-abs(gap), duration, turnspd)
+                    elif mode == 3 or mode == 5:  # turn left
+                        self.zumi.turn(desired_angle+abs(gap), duration, turnspd)
+                    elif mode == 6:
+                        go(turnspd, duration)
+                    elif mode == 0:
+                        self.zumi.stop()
 
+            dvm = [None, None]
+            while True:
+                if dvm[0] != drive_mode or dvm[1] != obstacle_detected:
+                    try:
+                        driver.terminate()
+                        driver.join()
+                    except Exception:
+                        pass
+                    dvm = [drive_mode, obstacle_detected]
+                    driver = Process(target=drive, args=(dvm[0], turngap, dvm[1]))
+                    driver.start()
+
+        watch_dog = Process(target=watchdog, args=(driver, ))
+        watch_dog.start()
         try:
             while True:
                 front_r, bottom_r, _, bottom_l, _, front_l = get_data()
@@ -163,28 +188,23 @@ class TeamOverload(object):
                     if frontsensor == 1:
                         raise KeyboardInterrupt
                     elif frontsensor == 2:
-                        turnspd *= -1
-                        forwardspd *= -1
                         obstacle_detected = not obstacle_detected
 
                 if bottom_l > threshold and bottom_r > threshold:  # both black
-                    if drive_mode != 0:
-                        drive(max_speed, forwardspd, read_z(), k_p, k_d, k_i, accuracy)
-                        drive_mode = 0
+                    if drive_mode != 1:
+                        drive_mode = 1
                         print("> go forward")
                     if stopline_detected:
                         raise KeyboardInterrupt
                 elif bottom_l < threshold and bottom_r > threshold:  # left white
-                    if drive_mode != 1:
-                        drive(turnspd, 0, read_z()-5, k_p, k_d, k_i, accuracy)
-                        drive_mode = 1
+                    if drive_mode != 2:
+                        drive_mode = 2
                         print("> turn right")
                     if stopline_detected:
                         stopline_detected = 0
                 elif bottom_l > threshold and bottom_r < threshold:  # right white
-                    if drive_mode != 2:
-                        drive(turnspd, 0, read_z()+5, k_p, k_d, k_i, accuracy)
-                        drive_mode = 2
+                    if drive_mode != 3:
+                        drive_mode = 3
                         print("> turn left")
                     if stopline_detected:
                         stopline_detected = 0
@@ -194,23 +214,27 @@ class TeamOverload(object):
                     if stopline_detected >= stopsign // (forwardspd//2):
                         stopline_detected = 0
                         if turndir == "Left":
-                            if drive_mode != 3:
-                                drive(turnspd, 0, read_z()+5, k_p, k_d, k_i, accuracy)
-                                drive_mode = 3
+                            if drive_mode != 4:
+                                drive_mode = 4
                                 print("> stopline_detected && turn left")
                         elif turndir == "Right":
-                            if drive_mode != 4:
-                                drive(turnspd, 0, read_z()-5, k_p, k_d, k_i, accuracy)
-                                drive_mode = 4
+                            if drive_mode != 5:
+                                drive_mode = 5
                                 print("> stopline_detected && turn right")
                         elif turndir == "None":
-                            if drive_mode != 5:
-                                drive(max_speed, turnspd, read_z(), k_p, k_d, k_i, accuracy)
-                                drive_mode = 5
+                            if drive_mode != 6:
+                                drive_mode = 6
                                 print("> stopline_detected && go forward")
                         else:
                             raise KeyboardInterrupt
         except KeyboardInterrupt:
+            watch_dog.terminate()
+            watch_dog.join()
+            try:
+                driver.terminate()
+                driver.join()
+            except Exception:
+                pass
             self.zumi.stop()
             print("-- a stop sign found --")
 
@@ -269,7 +293,7 @@ class TeamOverload(object):
         result = self.color_detector(self.knn_parking)
         self.play_DoReMi()
 
-        def find_parkinglot(self=self, desired_angle="90"):
+        def find_parkinglot(desired_angle):
             found = False
 
             # turn to direction
@@ -303,10 +327,10 @@ class TeamOverload(object):
             self.trace_line(turndir="None")
 
             # turn right
-            if find_parkinglot(self, "90"):
+            if find_parkinglot("90"):
                 break
             else:  # turn left
-                if find_parkinglot(self, "-90"):
+                if find_parkinglot("-90"):
                     break
 
     def run_courseB(self):
