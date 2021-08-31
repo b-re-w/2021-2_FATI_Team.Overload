@@ -155,14 +155,19 @@ class TeamOverload(object):
                 while True:
                     if mode == 1:
                         go(forwardspd, duration)
+                        print("driver status: go")
                     elif mode == 2 or mode == 4:  # turn right
                         self.zumi.turn(desired_angle-abs(gap), duration, turnspd)
+                        print("driver status: go right")
                     elif mode == 3 or mode == 5:  # turn left
                         self.zumi.turn(desired_angle+abs(gap), duration, turnspd)
+                        print("driver status: go left")
                     elif mode == 6:
                         go(turnspd, duration)
+                        print("driver status: go")
                     elif mode == 0:
                         self.zumi.stop()
+                        print("driver status: stop")
 
             dvm = [None, None]  # [drive_mode, obstacle_detected]
             while True:
