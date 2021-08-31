@@ -189,6 +189,7 @@ class TeamOverload(object):
                         stopline_detected = 0
                 else:  # both white
                     stopline_detected += 1
+                    print(">> stopline_detected")
                     if stopline_detected >= stopsign // (forwardspd//2):
                         stopline_detected = 0
                         if turndir == "Left":
