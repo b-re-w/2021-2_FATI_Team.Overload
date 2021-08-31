@@ -171,7 +171,7 @@ class TeamOverload(object):
 
             dvm = [None, None]  # [drive_mode, obstacle_detected]
             while True:
-                print("watchdog: %s", drive_mode)
+                print("watchdog: %s" % drive_mode)
                 if dvm[0] != drive_mode or dvm[1] != obstacle_detected:
                     try:
                         driver.terminate()
