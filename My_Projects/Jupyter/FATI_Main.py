@@ -134,8 +134,8 @@ class TeamOverload(object):
     def print_face(self):
         self.screen.draw_image_by_name("zumi_face_by_overload")
 
-    def trace_line(self, threshold=100, turnspd=5, forwardspd=10, stopsign=15, turndir="Stop", turngap=90, frontsensor=0):
-        """do not run this method with threading/thread, use multiprocessing
+    def trace_line(self, threshold=100, turnspd=5, forwardspd=10, stopsign=15, turndir="Stop", frontsensor=0):
+        """do not run this method with threading/thread/multiprocessing
            turndir == "Stop" -> stop when both white
            turndir == "Left" -> turn left when both white
            turndir == "Right" -> turn right when both white
@@ -145,64 +145,54 @@ class TeamOverload(object):
            frontsensor mode 2 -> reverse zumi when object detected (and restore when object is no longer detected)
         """
         get_data = self.zumi.get_all_IR_data
+        drive = self.zumi.drive_at_angle
         read_z = self.zumi.read_z_angle
 
         stopline_detected = 0
-        drive_mode = Array('i', (0, 0))#Manager().list([0, False])  # [mode, obstacle_detected]
+        obstacle_detected = False
+        drive_mode = -1
 
-        driver = None
+        # PID Values
+        k_p = self.zumi.D_P
+        k_i = self.zumi.D_I
+        k_d = self.zumi.D_D
+        self.zumi.reset_PID()
 
-        def drive(mode, gap, desired_angle, reverse=False):
-            try:
-                duration = 10000
-                go = self.zumi.forward if not reverse else self.zumi.reverse
-                while True:
-                    if mode == 1:
-                        go(forwardspd, duration)
-                        print("driver status: go")
-                    elif mode == 2 or mode == 4:  # turn right
-                        self.zumi.turn(desired_angle-abs(gap), duration, turnspd)
-                        print("driver status: go right")
-                    elif mode == 3 or mode == 5:  # turn left
-                        self.zumi.turn(desired_angle+abs(gap), duration, turnspd)
-                        print("driver status: go left")
-                    elif mode == 6:
-                        go(turnspd, duration)
-                        print("driver status: go")
-                    elif mode == 0:
-                        self.zumi.stop()
-                        print("driver status: stop")
-            except KeyboardInterrupt:
-                raise KeyboardInterrupt
+        max_speed = 127
+        accuracy = 1.0
 
-        dvm = [None, None]  # [drive_mode, obstacle_detected]
         try:
             while True:
                 front_r, bottom_r, _, bottom_l, _, front_l = get_data()
                 print((front_r, bottom_r, bottom_l, front_l))
 
-                if frontsensor and (front_l > threshold or front_r > threshold) if not drive_mode[1] else \
+                if frontsensor and (front_l > threshold or front_r > threshold) if not obstacle_detected else \
                                    (front_l < threshold and front_r < threshold):
                     if frontsensor == 1:
                         raise KeyboardInterrupt
                     elif frontsensor == 2:
-                        drive_mode[1] = not drive_mode[1]
+                        turnspd *= -1
+                        forwardspd *= -1
+                        obstacle_detected = not obstacle_detected
 
                 if bottom_l > threshold and bottom_r > threshold:  # both black
-                    if drive_mode[0] != 1:
-                        drive_mode[0] = 1
+                    if drive_mode != 0:
+                        drive(max_speed, forwardspd, read_z(), k_p, k_d, k_i, accuracy)
+                        drive_mode = 0
                         print("> go forward")
                     if stopline_detected:
                         raise KeyboardInterrupt
                 elif bottom_l < threshold and bottom_r > threshold:  # left white
-                    if drive_mode[0] != 2:
-                        drive_mode[0] = 2
+                    if drive_mode != 1:
+                        drive(turnspd, 0, read_z()-5, k_p, k_d, k_i, accuracy)
+                        drive_mode = 1
                         print("> turn right")
                     if stopline_detected:
                         stopline_detected = 0
                 elif bottom_l > threshold and bottom_r < threshold:  # right white
-                    if drive_mode[0] != 3:
-                        drive_mode[0] = 3
+                    if drive_mode != 2:
+                        drive(turnspd, 0, read_z()+5, k_p, k_d, k_i, accuracy)
+                        drive_mode = 2
                         print("> turn left")
                     if stopline_detected:
                         stopline_detected = 0
@@ -212,38 +202,23 @@ class TeamOverload(object):
                     if stopline_detected >= stopsign // (forwardspd//2):
                         stopline_detected = 0
                         if turndir == "Left":
-                            if drive_mode[0] != 4:
-                                drive_mode[0] = 4
+                            if drive_mode != 3:
+                                drive(turnspd, 0, read_z()+5, k_p, k_d, k_i, accuracy)
+                                drive_mode = 3
                                 print("> stopline_detected && turn left")
                         elif turndir == "Right":
-                            if drive_mode[0] != 5:
-                                drive_mode[0] = 5
+                            if drive_mode != 4:
+                                drive(turnspd, 0, read_z()-5, k_p, k_d, k_i, accuracy)
+                                drive_mode = 4
                                 print("> stopline_detected && turn right")
                         elif turndir == "None":
-                            if drive_mode[0] != 6:
-                                drive_mode[0] = 6
+                            if drive_mode != 5:
+                                drive(max_speed, turnspd, read_z(), k_p, k_d, k_i, accuracy)
+                                drive_mode = 5
                                 print("> stopline_detected && go forward")
                         else:
                             raise KeyboardInterrupt
-
-                if dvm[0] != drive_mode[0] or dvm[1] != drive_mode[1]:
-                    try:
-                        driver.terminate()
-                        driver.join()
-                        print("driver was terminated.")
-                    except Exception:
-                        print("driver init")
-                    dvm[0] = drive_mode[0]
-                    dvm[1] = drive_mode[1]
-                    driver = Process(target=drive, args=(dvm[0], turngap, read_z(), dvm[1]))
-                    driver.start()
-                    print("driver was started.")
         except KeyboardInterrupt:
-            try:
-                driver.terminate()
-                driver.join()
-            except Exception:
-                print("driver termination failed")
             self.zumi.stop()
             print("-- a stop sign found --")
 
