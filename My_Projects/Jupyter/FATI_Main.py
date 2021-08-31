@@ -28,6 +28,7 @@ Zumi Library Reference : https://learn.robolink.com/docs/zumi-library
 import sys
 import time
 from collections import Counter
+from multiprocessing import Process
 
 from zumi.zumi import Zumi
 from zumi.protocol import Note  # to play sounds
@@ -134,19 +135,23 @@ class TeamOverload(object):
     def print_face(self):
         self.screen.draw_image_by_name("zumi_face_by_overload")
 
-    def trace_line(self, threshold=95, turnspd=[5, -1], forwardspd=9, motordiff=13, stopsign=15, turndir="Stop", frontsensor=0):
+    def trace_line(self, threshold=95, turnspd=[5, -1], forwardspd=9, motordiff=13,
+                   stopcount=15, turndir="Stop", frontsensor=0, duration=0):
         """ do not run this method with threading/thread/multiprocessing
             motordiff cannot be negative
             turndir == "Stop" -> stop when both white
             turndir == "Left" -> turn left when both white
             turndir == "Right" -> turn right when both white
-            turndir == "None" -> go forward when both white
+            turndir == "None" -> go forward when both white and find both black site
             frontsensor mode 0 -> disable front sensor
             frontsensor mode 1 -> stop zumi when object detected
             frontsensor mode 2 -> reverse zumi when object detected (and restore when object is no longer detected)
+            duration == 0 -> do not check elapsed time
+            duration > 0 -> if elapsed > duration then stop
         """
         get_data = self.zumi.get_all_IR_data
         ctrl_motors = self.zumi.control_motors
+
         def set_motors(left, right):
             ctrl_motors(right, left)
 
@@ -156,10 +161,16 @@ class TeamOverload(object):
         motordiff = abs(motordiff)
         #drive_mode = 0
 
+        start = time.time()
+
         try:
             while True:
                 front_r, bottom_r, _, bottom_l, _, front_l = get_data()
                 print(bottom_l, bottom_r, "|", front_l, front_r)
+
+                if duration and duration <= time.time()-start:
+                    print("time out")
+                    raise KeyboardInterrupt
 
                 if frontsensor and (front_l < threshold and front_r < threshold) if not obstacle_detected else \
                                    (front_l > threshold or front_r > threshold):  # val > thresh : nothing detected
@@ -181,27 +192,28 @@ class TeamOverload(object):
                     set_motors(forwardspd_l, forwardspd)
                     #    drive_mode = 1
                     print("> go forward")
-                    if stopline_detected:
+                    if stopline_detected and turndir == "None":
                         raise KeyboardInterrupt
+                    else:
+                        stopline_detected = 0
                 elif bottom_l < threshold and bottom_r >= threshold:  # left white
                     #if drive_mode != 2:
                     set_motors(turnspd_l[0], turnspd[1])  # turn right
                     #    drive_mode = 2
                     print("> turn right")
-                    if stopline_detected:
+                    if stopline_detected and turndir != "None":
                         stopline_detected = 0
                 elif bottom_l >= threshold and bottom_r < threshold:  # right white
                     #if drive_mode != 3:
                     set_motors(turnspd_l[1], turnspd[0])  # turn left
                     #    drive_mode = 3
                     print("> turn left")
-                    if stopline_detected:
+                    if stopline_detected and turndir != "None":
                         stopline_detected = 0
                 else:  # both white
                     stopline_detected += 1
                     print(">> stopline_detected")
-                    if stopline_detected >= stopsign // ((forwardspd+1)//2):
-                        stopline_detected = 0
+                    if stopline_detected >= stopcount // (forwardspd+1//2):
                         if turndir == "Left":
                             #if drive_mode != 4:
                             set_motors(turnspd_l[1], turnspd[0])  # turn left
@@ -311,49 +323,50 @@ class TeamOverload(object):
             self.zumi.stop()
             print("-- a stop sign found --")
 
-    def turn_while_linetracing(self, threshold=100, turnspd=5, turndir="Right", desired_angle="90"):
-        """ if desired_angle is not None, then turndir is reset automatically.
-            desired_angle and turndir cannot be both None.
+    def turn_to_dir(self, threshold=95, desired_angle=90, speed=[25, 0], motordiff=13, trust_line=True):
+        """ desired_angle > 0 -> turn left
+            desired_angle < 0 -> turn right
         """
         get_data = self.zumi.get_all_IR_data
-        set_motors = self.zumi.control_motors
+        ctrl_motors = self.zumi.control_motors
         read_z = self.zumi.read_z_angle
 
-        if desired_angle is not None:
-            turndir = "Left" if desired_angle < 0 else "Right"
-            desired_angle += read_z()
-            if desired_angle < -180:
-                desired_angle = desired_angle % 180
-            elif desired_angle > 180:
-                desired_angle = desired_angle % -180
-            elif desired_angle == -180:
-                desired_angle *= -1
+        def set_motors(left, right):
+            ctrl_motors(right, left)
 
-        if turndir is None:
-            print("desired_angle and turndir cannot be both None.")
-            raise ValueError
+        speed_l = [speed[0]+abs(motordiff)*(1 if speed[0] > 0 else -1 if speed[0] < 0 else 0),
+                   speed[1]+abs(motordiff)*(1 if speed[1] > 0 else -1 if speed[1] < 0 else 0)]
+
+        before = read_z()
+
+        if desired_angle > 0:
+            set_motors(speed_l[1], speed[0])  # turn left
+            print("> turn left")
+        elif desired_angle < 0:
+            set_motors(speed_l[0], speed[1])  # turn right
+            print("> turn right")
+        else:
+            print("> not move")
 
         try:
             while True:
-                _, bottom_r, _, bottom_l, _, _ = get_data()
+                if trust_line:
+                    _, bottom_r, _, bottom_l, _, _ = get_data()
+                    print(bottom_l, bottom_r)
 
-                if bottom_l > threshold and bottom_r > threshold and (desired_angle is None or
-                   (desired_angle >= read_z() if "L" in turndir else desired_angle <= read_z())):
-                    raise KeyboardInterrupt
-                elif bottom_l < threshold and bottom_r > threshold:  # left black
-                    set_motors(turnspd, 0, 0)  # turn left
-                elif bottom_l > threshold and bottom_r < threshold:  # right black
-                    set_motors(0, turnspd, 0)  # turn right
-                else:  # both white
-                    if turndir == "Left":
-                        set_motors(turnspd, 0, 0)  # turn left
-                    else:
-                        set_motors(0, turnspd, 0)  # turn right
+                if trust_line and 0 < before+desired_angle-read_z() < 10:
+                    if bottom_l >= threshold and bottom_r >= threshold:
+                        break
+                elif before+desired_angle-read_z() <= 0:
+                    if not trust_line or bottom_l >= threshold or bottom_r >= threshold:
+                        break
+            print("-- result : %d -> %d --" % (before, read_z()))
         except KeyboardInterrupt:
-            self.zumi.stop()
             print("-- a stop sign found --")
+        finally:
+            self.zumi.stop()
 
-    def run_courseA(self):
+    def run_courseA(self, reverse_on=True, trust_line=True):
         """ 색상 카드를 읽어 해당 색상에 맞는 주차공간을 찾아 주차 (주차공간의 전면에 색상카드가 세워질 예정 - 전면카메라를 이용한 색깔 인식): 최대 +80점
             출발 직전 도 레 미 음성 출력 후 출발: +10점
             색깔 인식 후 Zumi 화면에 해당 색상 표시: +20점
@@ -364,71 +377,66 @@ class TeamOverload(object):
         self.screen.draw_text_center("- course A -")
 
         # before the zumi start
-        self.trace_line(turndir="None")
+        self.trace_line(forwardspd=1, turnspd=[1, 0], turndir="None")
         self.play_DoReMi()
         result = self.color_detector(self.knn_parking)
 
-        def find_parkinglot(desired_angle):
-            found = False
-
-            # turn to direction
-            self.turn_while_linetracing(desired_angle=desired_angle)
-
-            if self.color_detector(self.knn_parking) == result:
-                found = True
-
-                # park
-                start = time.time()
-                self.trace_line(turndir="None", frontsensor=1)
-                elapsed = time.time() - start
-                time.sleep(3)
-
-                # pull out
-                tracer = Process(target=self.trace_line, args=(self, 100, -5, -7, 15, "None", 1))
-                start = time.time()
-                tracer.start()
-                while elapsed >= time.time() - start:
-                    pass
-                tracer.terminate()
-                self.zumi.stop()
-                tracer.join()
-
-            # turn to direction
-            self.turn_while_linetracing(turnspd=-5, desired_angle=desired_angle*-1)
-            return found
-
-        while True:  # loop until zumi ever parked
+        # for loop until zumi ever parked
+        found = False
+        for dir in [-90, 90, -90]:
             # go until the stop line
-            self.trace_line(turndir="None")
+            if trust_line:
+                self.trace_line(turndir="None")
+            else:
+                self.trace_line()
+                # go a little bit more
+                self.zumi.forward()
 
-            # turn right
-            if find_parkinglot("90"):
-                break
-            else:  # turn left
-                if find_parkinglot("-90"):
-                    break
+            if not found:
+                # turn to direction
+                self.turn_to_dir(dir)
+
+                if self.color_detector(self.knn_parking) == result:
+                    # park
+                    self.trace_line()
+                    time.sleep(1)
+
+                    # pull out
+                    if reverse_on:
+                        self.trace_line(forwardspd=-10, turnspd=[-5, 1])
+                    else:
+                        self.turn_to_dir(dir*2)
+                        self.trace_line()
+                        # go a little bit more
+                        self.zumi.forward()
+                    found = True
+
+                # turn to direction
+                self.turn_to_dir(dir * -1 if reverse_on else 1)
 
     def run_courseB(self):
         """ 빨강색 Color Card 를 이용해 B course 시작지점에 정차했다가 카드를 치우면 남은 B course를 올바르게 주행하는지: 최대 +50점
             빨간색 카드를 제대로 인식하고 정지하는지: 각 +15점 (빨간색 카드는 총 2회 등장함: 총 +30점)
-            초록색 카드를 제대로 인식하고 빨간색 카드가 없을 때  올바르게 주행하는지: +20점
+            초록색 카드를 제대로 인식하고 빨간색 카드가 없을 때 올바르게 주행하는지: +20점
             힌트: 앞에 장애물이 있을때 색깔 카드를 인식하도록 하면 더욱 좋은 정확도를 가질수 있음
         """
         self.screen.draw_text_center("- course B -")
 
+        # go forward
+        self.trace_line(turndir="None")
+
         # detect red light
-        tracer = Process(target=self.trace_line, args=(self, 100, 5, 7, 15, "None", 0))
-        tracer.start()
         while self.color_detector(self.knn_trafficlight) != "Red":
             pass
-        tracer.terminate()
-        self.zumi.stop()
-        tracer.join()
+        print("red light is detected")
+        while self.color_detector(self.knn_trafficlight) == "Red":
+            pass
+        print("red light was removed")
 
         # go until the stop line
         self.trace_line(turndir="None")
 
-    def run_courseC(self, signalwait=10, scenario=False):
+    def run_courseC(self, signalwait=10):
         """ 신호등의 색상이 초록색으로 바뀌면 QR코드를 인식하고 QR코드 문제를 올바르게 해결하여 적절한 도착지점에 도착: 최대 +70점
             QR코드 지점까지 올바르게 라인트레이싱: +10점
             QR코드의 message를 올바르게 인식: +10점
@@ -442,53 +450,34 @@ class TeamOverload(object):
         """
         self.screen.draw_text_center("- course C -")
 
-        # recognize traffic light
-        if not scenario:  # 정해진 시나리오 없이 진행
-            # recognize traffic light
-            tracer = Process(target=self.trace_line, args=(self, 100, 5, 7, 15, "Left", 0))
-            start_time = time.time()
-            while time.time() - start_time <= signalwait:
-                result = self.color_detector(self.knn_trafficlight)
-                try:
-                    if result == "Red":
-                        tracer.terminate()
-                        self.zumi.stop()
-                        tracer.join()
-                        tracer = Process(target=self.trace_line, args=(self, 100, 5, 7, 15, "Left", 0))
-                    elif result == "Green":
-                        tracer.start()
-                except Exception:
-                    pass
-        else:  # 빨간 색 이후 초록 색 신호 시나리오
-            # detect red light
-            tracer = Process(target=self.trace_line, args=(self, 100, 5, 7, 15, "Left", 0))
-            tracer.start()
-            while self.color_detector(self.knn_trafficlight) != "Red":
-                pass
-            tracer.terminate()
-            self.zumi.stop()
-            tracer.join()
+        # detect red light
+        while self.color_detector(self.knn_trafficlight) != "Red":
+            pass
 
-            # detect green light
-            while self.color_detector(self.knn_trafficlight, 5) != "Green":
-                pass
+        # detect green light
+        while self.color_detector(self.knn_trafficlight) != "Green":
+            pass
 
-        # move during QR detecting
-        tracer = Process(target=self.trace_line, args=(self, 100, 5, 7, 15, "Right", 2))
-        tracer.start()
-        result = self.qr_detector()
-        tracer.terminate()
-        self.zumi.stop()
-        tracer.join()
+        # go until the stop line
+        self.trace_line(turndir="None")
+
+        # detect QR
+        result = None
+        while True:
+            result = self.qr_detector()
+            if result is not None:
+                break
+            else:  # maybe not working
+                self.trace_line(threshold=75, frontsensor=2, duration=1)
 
         # go until jumi reaches the junction
-        self.trace_line()
+        self.trace_line(duration=1)
 
         # turn
-        self.turn_while_linetracing(turndir=result)
+        self.turn_to_dir(desired_angle=90 if 'L' in result else -90)
 
         # end
-        self.trace_line(turndir="None", frontsensor=1)
+        self.trace_line(frontsensor=1)
         self.print_face()
         self.play_NextLevel()
 
