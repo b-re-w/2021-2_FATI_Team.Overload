@@ -341,7 +341,7 @@ class TeamOverload(object):
         self.screen.draw_text_center("- course B -")
 
         # detect red light
-        tracer = Process(target=self.trace_line, args=(self, 100, 5, 7, 15, "Right", 0))
+        tracer = Process(target=self.trace_line, args=(self, 100, 5, 7, 15, "None", 0))
         tracer.start()
         while self.color_detector(self.knn_trafficlight) != "Red":
             pass
