@@ -237,7 +237,7 @@ class TeamOverload(object):
                 driver.terminate()
                 driver.join()
             except Exception:
-                pass
+                print("driver termination failed")
             self.zumi.stop()
             print("-- a stop sign found --")
 
