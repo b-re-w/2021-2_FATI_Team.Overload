@@ -134,7 +134,7 @@ class TeamOverload(object):
     def print_face(self):
         self.screen.draw_image_by_name("zumi_face_by_overload")
 
-    def trace_line(self, threshold=95, turnspd=5, forwardspd=9, motordiff=12, stopsign=15, turndir="Stop", frontsensor=0):
+    def trace_line(self, threshold=95, turnspd=[5, -1], forwardspd=9, motordiff=12, stopsign=15, turndir="Stop", frontsensor=0):
         """do not run this method with threading/thread/multiprocessing
            turndir == "Stop" -> stop when both white
            turndir == "Left" -> turn left when both white
@@ -157,14 +157,16 @@ class TeamOverload(object):
                 front_r, bottom_r, _, bottom_l, _, front_l = get_data()
                 print(bottom_l, bottom_r, "|", front_l, front_r)
 
-                if frontsensor and (front_l > threshold or front_r > threshold) if not obstacle_detected else \
-                                   (front_l < threshold and front_r < threshold):
+                if frontsensor and (front_l < threshold and front_r < threshold) if not obstacle_detected else \
+                                   (front_l > threshold or front_r > threshold):  # val > thresh : nothing detected
                     if frontsensor == 1:
+                        print("obstacle detected")
                         raise KeyboardInterrupt
                     elif frontsensor == 2:
                         turnspd *= -1
                         forwardspd *= -1
                         obstacle_detected = not obstacle_detected
+                        print("obstacle detected" if obstacle_detected else "obstacle removed")
 
                 if bottom_l >= threshold and bottom_r >= threshold:  # both black
                     if drive_mode != 1:
