@@ -20,7 +20,7 @@ Zumi Library Reference : https://learn.robolink.com/docs/zumi-library
 import sys
 import time
 from collections import Counter
-from multiprocessing import Process, Manager
+from multiprocessing import Process, Array#, Manager
 
 from zumi.zumi import Zumi
 from zumi.protocol import Note  # to play sounds
@@ -141,7 +141,7 @@ class TeamOverload(object):
         read_z = self.zumi.read_z_angle
 
         stopline_detected = 0
-        drive_mode = Manager().list([0, False])  # [mode, obstacle_detected]
+        drive_mode = Array('i', (0, 0))#Manager().list([0, False])  # [mode, obstacle_detected]
 
         watch_dog = None
         driver = None
@@ -170,7 +170,7 @@ class TeamOverload(object):
 
             dvm = [None, None]  # [drive_mode, obstacle_detected]
             while True:
-                print("watchdog:", drive_mode)
+                print("watchdog: %d, %d" % (drive_mode[0], drive_mode[1]))
                 #print(id(drive_mode))
                 if dvm[0] != drive_mode[0] or dvm[1] != drive_mode[1]:
                     try:
@@ -191,7 +191,7 @@ class TeamOverload(object):
             while True:
                 front_r, bottom_r, _, bottom_l, _, front_l = get_data()
                 print((front_r, bottom_r, bottom_l, front_l))
-                print("linetracer:", drive_mode)
+                print("linetracer: %d, %d" % (drive_mode[0], drive_mode[1]))
                 #print(id(drive_mode))
 
                 if frontsensor and (front_l > threshold or front_r > threshold) if not drive_mode[1] else \
