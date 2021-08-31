@@ -166,21 +166,21 @@ class TeamOverload(object):
                         forwardspd *= -1
                         obstacle_detected = not obstacle_detected
 
-                if bottom_l > threshold and bottom_r > threshold:  # both black
+                if bottom_l >= threshold and bottom_r >= threshold:  # both black
                     if drive_mode != 1:
                         set_motors(forwardspd, forwardspd+motordiff, 0)
                         drive_mode = 1
                         print("> go forward")
                     if stopline_detected:
                         raise KeyboardInterrupt
-                elif bottom_l < threshold and bottom_r > threshold:  # left white
+                elif bottom_l < threshold and bottom_r >= threshold:  # left white
                     if drive_mode != 2:
                         set_motors(-2, turnspd+motordiff, 0)  # turn right
                         drive_mode = 2
                         print("> turn right")
                     if stopline_detected:
                         stopline_detected = 0
-                elif bottom_l > threshold and bottom_r < threshold:  # right white
+                elif bottom_l >= threshold and bottom_r < threshold:  # right white
                     if drive_mode != 3:
                         set_motors(turnspd, -2-motordiff, 0)  # turn left
                         drive_mode = 3
