@@ -90,7 +90,7 @@ class TeamOverload(object):
             (Note.FS2, 1), (Note.FS3, 1.25), (Note.FS2, 0.25), (Note.FS3, 0.75), (Note.A2, 1.25), (Note.B2, 1.5)
         ]]
 
-    def color_detector(self, knn, len=10, unity=True):
+    def color_detector(self, knn, len=5, unity=True):
         retry = True
         while retry:
             predicts = []
@@ -364,8 +364,9 @@ class TeamOverload(object):
         self.screen.draw_text_center("- course A -")
 
         # before the zumi start
-        result = self.color_detector(self.knn_parking)
+        self.trace_line(turndir="None")
         self.play_DoReMi()
+        result = self.color_detector(self.knn_parking)
 
         def find_parkinglot(desired_angle):
             found = False
