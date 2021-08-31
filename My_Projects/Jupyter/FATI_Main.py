@@ -200,7 +200,7 @@ class TeamOverload(object):
                 else:  # both white
                     stopline_detected += 1
                     print(">> stopline_detected")
-                    if stopline_detected >= stopsign // (forwardspd//2):
+                    if stopline_detected >= stopsign // ((forwardspd+1)//2):
                         stopline_detected = 0
                         if turndir == "Left":
                             #if drive_mode != 4:
@@ -288,7 +288,7 @@ class TeamOverload(object):
                 else:  # both white
                     stopline_detected += 1
                     print(">> stopline_detected")
-                    if stopline_detected >= stopsign // (forwardspd//2):
+                    if stopline_detected >= stopsign // ((forwardspd+1)//2):
                         stopline_detected = 0
                         if turndir == "Left":
                             if drive_mode != 3:
