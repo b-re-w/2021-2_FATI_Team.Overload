@@ -134,7 +134,7 @@ class TeamOverload(object):
     def print_face(self):
         self.screen.draw_image_by_name("zumi_face_by_overload")
 
-    def trace_line(self, threshold=100, turnspd=5, forwardspd=10, stopsign=15, turndir="Stop", frontsensor=0, motordiff=12):
+    def trace_line(self, threshold=95, turnspd=5, forwardspd=9, motordiff=12, stopsign=15, turndir="Stop", frontsensor=0):
         """do not run this method with threading/thread/multiprocessing
            turndir == "Stop" -> stop when both white
            turndir == "Left" -> turn left when both white
