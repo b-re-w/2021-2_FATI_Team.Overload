@@ -141,8 +141,7 @@ class TeamOverload(object):
         read_z = self.zumi.read_z_angle
 
         stopline_detected = 0
-        obstacle_detected = False
-        drive_mode = 0
+        drive_mode = [0, False]  # [mode, obstacle_detected]
 
         watch_dog = None
         driver = None
@@ -171,15 +170,16 @@ class TeamOverload(object):
 
             dvm = [None, None]  # [drive_mode, obstacle_detected]
             while True:
-                print("watchdog: %s" % drive_mode)
-                if dvm[0] != drive_mode or dvm[1] != obstacle_detected:
+                print("watchdog:", drive_mode)
+                if dvm[0] != drive_mode[0] or dvm[1] != drive_mode[1]:
                     try:
                         driver.terminate()
                         driver.join()
                         print("driver was terminated.")
                     except Exception:
                         pass
-                    dvm = [drive_mode, obstacle_detected]
+                    dvm[0] = drive_mode[0]
+                    dvm[1] = drive_mode[1]
                     driver = Process(target=drive, args=(dvm[0], turngap, dvm[1]))
                     driver.start()
                     print("driver was started.")
@@ -191,12 +191,12 @@ class TeamOverload(object):
                 front_r, bottom_r, _, bottom_l, _, front_l = get_data()
                 print((front_r, bottom_r, bottom_l, front_l))
 
-                if frontsensor and (front_l > threshold or front_r > threshold) if not obstacle_detected else \
+                if frontsensor and (front_l > threshold or front_r > threshold) if not drive_mode[1] else \
                                    (front_l < threshold and front_r < threshold):
                     if frontsensor == 1:
                         raise KeyboardInterrupt
                     elif frontsensor == 2:
-                        obstacle_detected = not obstacle_detected
+                        drive_mode[1] = not drive_mode[1]
 
                 if bottom_l > threshold and bottom_r > threshold:  # both black
                     if drive_mode != 1:
