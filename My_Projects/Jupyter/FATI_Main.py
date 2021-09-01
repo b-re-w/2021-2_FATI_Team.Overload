@@ -28,7 +28,6 @@ Zumi Library Reference : https://learn.robolink.com/docs/zumi-library
 import sys
 import time
 from collections import Counter
-from multiprocessing import Process
 
 from zumi.zumi import Zumi
 from zumi.protocol import Note  # to play sounds
