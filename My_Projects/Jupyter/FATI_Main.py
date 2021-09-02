@@ -487,7 +487,8 @@ class TeamOverload(object):
         self.turn_to_dir(desired_angle=90 if 'L' in result else -90)
 
         # end
-        self.trace_line(frontsensor=1, forwardspd=4, turnspd=[2, 0], turndir=result, threshold=[40, 110])
+        self.trace_line(frontsensor=1, forwardspd=4, turnspd=[2, 0],
+                        turndir="Right" if 'L' in result else "Left", threshold=[40, 110])
         self.print_face()
         self.play_NextLevel()
 
