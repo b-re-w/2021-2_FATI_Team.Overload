@@ -404,7 +404,7 @@ class TeamOverload(object):
 
                     # pull out
                     if reverse_on:
-                        self.zumi.reverse(speed=10, duration=0.3)
+                        self.zumi.reverse(speed=10, duration=0.5)
                         self.trace_line(forwardspd=-10, turnspd=[-5, 1])
                     else:
                         self.turn_to_dir(desired_angle=dir*2, speed=[1, -1])
