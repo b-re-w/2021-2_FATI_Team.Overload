@@ -384,7 +384,7 @@ class TeamOverload(object):
 
         # for loop until zumi ever parked
         found = False
-        for dir in [-90, 90, -90]:
+        for dir in [-80, 80, -80]:
             # go until the stop line
             if trust_line:
                 self.trace_line(turndir="None")
@@ -395,7 +395,7 @@ class TeamOverload(object):
 
             if not found:
                 # turn to direction
-                self.turn_to_dir(desired_angle=dir, speed=[4, -4])
+                self.turn_to_dir(desired_angle=dir, speed=[1, -1])
 
                 if self.color_detector(self.knn_parking) == result:
                     # park
@@ -406,7 +406,7 @@ class TeamOverload(object):
                     if reverse_on:
                         self.trace_line(forwardspd=-10, turnspd=[-5, 1])
                     else:
-                        self.turn_to_dir(desired_angle=dir*2, speed=[4, -4])
+                        self.turn_to_dir(desired_angle=dir*2, speed=[1, -1])
                         self.trace_line()
                         # go a little bit more
                         self.zumi.forward()
