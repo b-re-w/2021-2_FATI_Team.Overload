@@ -59,9 +59,9 @@ class TeamOverload(object):
     def __del__(self):
         try:
             self.camera.close()
+            self.zumi.stop()
         except Exception:
             pass
-        self.zumi.stop()
         print("------------- zumi stopped")
 
     def play_DoReMi(self):
@@ -134,7 +134,7 @@ class TeamOverload(object):
     def print_face(self):
         self.screen.draw_image_by_name("zumi_face_by_overload")
 
-    def trace_line(self, threshold=95, turnspd=[5, 0], forwardspd=9, motordiff=13,
+    def trace_line(self, threshold=95, turnspd=[5, 0], forwardspd=7, motordiff=13,
                    stopcount=15, turndir="Stop", frontsensor=0, duration=0):
         """ do not run this method with threading/thread/multiprocessing
             motordiff cannot be negative
