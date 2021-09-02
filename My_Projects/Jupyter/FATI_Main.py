@@ -450,11 +450,11 @@ class TeamOverload(object):
         self.screen.draw_text_center("- course C -")
 
         # detect red light
-        while self.color_detector(self.knn_trafficlight) != "Red":
+        while self.color_detector(self.knn_trafficlight, len=3) != "Red":
             pass
 
         # detect green light
-        while self.color_detector(self.knn_trafficlight) != "Green":
+        while self.color_detector(self.knn_trafficlight, len=3) != "Green":
             pass
 
         # go until the stop line
@@ -485,7 +485,7 @@ class TeamOverload(object):
         self.turn_to_dir(desired_angle=90 if 'L' in result else -90)
 
         # end
-        self.trace_line(frontsensor=1)
+        self.trace_line(frontsensor=1, forwardspd=4, turnspd=[2, 0])
         self.print_face()
         self.play_NextLevel()
 
