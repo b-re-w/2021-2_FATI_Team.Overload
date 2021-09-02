@@ -466,7 +466,8 @@ class TeamOverload(object):
         while True:
             result = self.qr_detector()
             if result is not None:
-                break
+                if reversed == 2:
+                    self.zumi.forward(speed=10, duration=1)
             else:  # maybe not working
                 #self.trace_line(frontsensor=2, duration=1)
                 if not reversed:
