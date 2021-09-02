@@ -2,6 +2,7 @@
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ### Alias : FATI.Main.py & Last Modded : 2021.08.31. ###
 Zumi Library Reference : https://learn.robolink.com/docs/zumi-library
+FATI 대회 공지 : https://sites.google.com/view/2021fati/%ED%8F%89%EA%B0%80-%EB%B0%A9%EC%8B%9D
 
 2021 FATI 평가 방식
 -0점부터 동작별 가산 점수를 부여함. 총점: +200점(보너스 +30점 미포함)
@@ -124,7 +125,7 @@ class TeamOverload(object):
             resolved = eval(message)
             result = "Left" if resolved % 2 == 0 else "Right"
             print(">> eval(message) is %d, so turn %s" % (resolved, result))
-            self.screen.draw_text_center("QR : turn " + result)
+            self.screen.draw_text_center("%d -> turn " % (resolved) + result)
             try:
                 self.camera.show_image(image)
                 self.camera.clear_output()
@@ -414,7 +415,7 @@ class TeamOverload(object):
                     found = True
 
                 # turn to direction
-                self.turn_to_dir(desired_angle=dir * (-1 if reverse_on else 1))
+                self.turn_to_dir(desired_angle=dir * (-1 if reverse_on or not found else 1))
 
     def run_courseB(self, turnspd=[2, 0], forwardspd=2, motordiff=0):
         """ 빨강색 Color Card 를 이용해 B course 시작지점에 정차했다가 카드를 치우면 남은 B course를 올바르게 주행하는지: 최대 +50점
@@ -438,7 +439,7 @@ class TeamOverload(object):
         # go until the stop line
         self.trace_line(turnspd=turnspd, forwardspd=forwardspd, turndir="None", motordiff=motordiff)
 
-    def run_courseC(self, backandforth=0):
+    def run_courseC(self, backandforth=0, threshold=[40, 110]):
         """ 신호등의 색상이 초록색으로 바뀌면 QR코드를 인식하고 QR코드 문제를 올바르게 해결하여 적절한 도착지점에 도착: 최대 +70점
             QR코드 지점까지 올바르게 라인트레이싱: +10점
             QR코드의 message를 올바르게 인식: +10점
@@ -489,7 +490,7 @@ class TeamOverload(object):
 
         # end
         self.trace_line(frontsensor=1, forwardspd=4, turnspd=[2, 0],
-                        turndir="Right" if 'L' in result else "Left", threshold=[40, 110])
+                        turndir="Right" if 'L' in result else "Left", threshold=threshold)
         self.print_face()
         self.play_NextLevel()
 
