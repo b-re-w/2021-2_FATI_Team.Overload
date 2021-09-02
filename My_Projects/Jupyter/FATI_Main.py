@@ -45,8 +45,9 @@ class TeamOverload(object):
         self.zumi = Zumi()
 
         if demo_name is None:
-            self.demo_name = ["", "Parking_550_8444", "All_400_8444"]
+            self.demo_name = ["", "Parking_150_8444", "All_400_8444"]
         else:
+            self.demo_name = demo_name
             print("demo_name argument " + self.demo_name + "detected!\n")
         self.knn_parking = ColorClassifier(demo_name=self.demo_name[1], user_name="Overload")
         self.knn_trafficlight = ColorClassifier(demo_name=self.demo_name[2], user_name="Overload")
