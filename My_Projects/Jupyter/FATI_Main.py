@@ -45,7 +45,7 @@ class TeamOverload(object):
         self.zumi = Zumi()
 
         if demo_name is None:
-            self.demo_name = ["", "Parking_300_8444", "All_400_8444"]
+            self.demo_name = ["", "Parking_150_8444", "All_400_8444"]
         else:
             print("demo_name argument " + self.demo_name + "detected!\n")
         self.knn_parking = ColorClassifier(demo_name=self.demo_name[1], user_name="Overload")
@@ -462,12 +462,19 @@ class TeamOverload(object):
 
         # detect QR
         result = None
+        reversed = 0
         while True:
             result = self.qr_detector()
             if result is not None:
                 break
             else:  # maybe not working
-                self.trace_line(threshold=75, frontsensor=2, duration=1)
+                #self.trace_line(frontsensor=2, duration=1)
+                if not reversed:
+                    self.zumi.reverse(speed=10, duration=2)
+                    reversed = 1
+                else:
+                    self.zumi.forward(speed=10, duration=1)
+                    reversed = 2 if reversed == 1 else 0
 
         # go until jumi reaches the junction
         self.trace_line(duration=1)
