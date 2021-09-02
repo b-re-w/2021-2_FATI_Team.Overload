@@ -368,7 +368,7 @@ class TeamOverload(object):
         finally:
             self.zumi.stop()
 
-    def run_courseA(self, reverse_on=False, trust_line=True, senario=False):
+    def run_courseA(self, reverse_on=False, trust_line=True, senario=False, forwardspd=4, turnspd=[2, 0]):
         """ 색상 카드를 읽어 해당 색상에 맞는 주차공간을 찾아 주차 (주차공간의 전면에 색상카드가 세워질 예정 - 전면카메라를 이용한 색깔 인식): 최대 +80점
             출발 직전 도 레 미 음성 출력 후 출발: +10점
             색깔 인식 후 Zumi 화면에 해당 색상 표시: +20점
@@ -389,9 +389,9 @@ class TeamOverload(object):
         for i, dir in enumerate([-80, 80, -80]):
             # go until the stop line
             if trust_line:
-                self.trace_line(turndir="None", forwardspd=4, turnspd=[2, 0])
+                self.trace_line(turndir="None", forwardspd=forwardspd, turnspd=turnspd)
             else:
-                self.trace_line(forwardspd=4, turnspd=[2, 0])
+                self.trace_line(forwardspd=forwardspd, turnspd=turnspd)
                 # go a little bit more
                 self.zumi.forward(speed=10, duration=0.3)
 
