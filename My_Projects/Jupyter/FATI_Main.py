@@ -45,7 +45,7 @@ class TeamOverload(object):
         self.zumi = Zumi()
 
         if demo_name is None:
-            self.demo_name = ["", "Parking_300_8444", "All_200_8444"]
+            self.demo_name = ["", "Parking_300_8444", "All_400_8444"]
         else:
             print("demo_name argument " + self.demo_name + "detected!\n")
         self.knn_parking = ColorClassifier(demo_name=self.demo_name[1], user_name="Overload")
@@ -413,7 +413,7 @@ class TeamOverload(object):
                 # turn to direction
                 self.turn_to_dir(dir * -1 if reverse_on else 1)
 
-    def run_courseB(self, turnspd=[5, -1], forwardspd=7):
+    def run_courseB(self, turnspd=[4, 0], forwardspd=2):
         """ 빨강색 Color Card 를 이용해 B course 시작지점에 정차했다가 카드를 치우면 남은 B course를 올바르게 주행하는지: 최대 +50점
             빨간색 카드를 제대로 인식하고 정지하는지: 각 +15점 (빨간색 카드는 총 2회 등장함: 총 +30점)
             초록색 카드를 제대로 인식하고 빨간색 카드가 없을 때 올바르게 주행하는지: +20점
@@ -422,7 +422,7 @@ class TeamOverload(object):
         self.screen.draw_text_center("- course B -")
 
         # go forward
-        self.trace_line()
+        self.trace_line(forwardspd=6, turndir="None")
 
         # detect red light
         while self.color_detector(self.knn_trafficlight) != "Red":
