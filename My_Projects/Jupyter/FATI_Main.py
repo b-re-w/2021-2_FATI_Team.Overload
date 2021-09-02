@@ -402,7 +402,7 @@ class TeamOverload(object):
                 # turn to direction
                 self.turn_to_dir(desired_angle=dir, speed=[1, -1])
 
-                if self.color_detector(self.knn_parking) == result:
+                if senario or self.color_detector(self.knn_parking) == result:
                     # park
                     self.trace_line()
                     time.sleep(1)
