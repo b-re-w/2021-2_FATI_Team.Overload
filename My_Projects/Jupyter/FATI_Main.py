@@ -422,7 +422,7 @@ class TeamOverload(object):
         self.screen.draw_text_center("- course B -")
 
         # go forward
-        self.trace_line(turndir="None")
+        self.trace_line()
 
         # detect red light
         while self.color_detector(self.knn_trafficlight) != "Red":
