@@ -435,7 +435,7 @@ class TeamOverload(object):
         # go until the stop line
         self.trace_line(turnspd=turnspd, forwardspd=forwardspd, turndir="None", motordiff=motordiff)
 
-    def run_courseC(self, backandforth=2):
+    def run_courseC(self, backandforth=0):
         """ 신호등의 색상이 초록색으로 바뀌면 QR코드를 인식하고 QR코드 문제를 올바르게 해결하여 적절한 도착지점에 도착: 최대 +70점
             QR코드 지점까지 올바르게 라인트레이싱: +10점
             QR코드의 message를 올바르게 인식: +10점
@@ -469,7 +469,7 @@ class TeamOverload(object):
                 if reversed:
                     self.zumi.forward(speed=10, duration=reversed)
                 break
-            else:  # maybe not working
+            elif backandforth:  # maybe not working
                 #self.trace_line(frontsensor=2, duration=1)
                 if not reversed:
                     self.zumi.reverse(speed=10, duration=backandforth)
@@ -501,7 +501,7 @@ if __name__ == '__main__':
     fati.run_courseB()
 
     # course C
-    fati.run_courseC(backandforth=1)
+    fati.run_courseC()
 
     # quit
     del fati
