@@ -134,7 +134,7 @@ class TeamOverload(object):
     def print_face(self):
         self.screen.draw_image_by_name("zumi_face_by_overload")
 
-    def trace_line(self, threshold=95, turnspd=[5, 0], forwardspd=7, motordiff=13,
+    def trace_line(self, threshold=[95, 30], turnspd=[5, 0], forwardspd=7, motordiff=13,
                    stopcount=15, turndir="Stop", frontsensor=0, duration=0):
         """ do not run this method with threading/thread/multiprocessing
             motordiff cannot be negative
@@ -171,8 +171,8 @@ class TeamOverload(object):
                     print("time out")
                     raise KeyboardInterrupt
 
-                if frontsensor and (front_l < threshold and front_r < threshold) if not obstacle_detected else \
-                                   (front_l > threshold or front_r > threshold):  # val > thresh : nothing detected
+                if frontsensor and (front_l < threshold[1] and front_r < threshold[1]) if not obstacle_detected else \
+                                   (front_l > threshold[1] or front_r > threshold[1]):  # val > thresh : nothing detected
                     if frontsensor == 1:
                         print("obstacle detected")
                         raise KeyboardInterrupt
@@ -186,7 +186,7 @@ class TeamOverload(object):
                 forwardspd_l = forwardspd+abs(motordiff)*(1 if forwardspd > 0 else -1 if forwardspd < 0 else 0)
                 turnspd_l = [turnspd[0]+abs(motordiff)*(1 if turnspd[0] > 0 else -1 if turnspd[0] < 0 else 0),
                              turnspd[1]+abs(motordiff)*(1 if turnspd[1] > 0 else -1 if turnspd[1] < 0 else 0)]
-                if bottom_l >= threshold and bottom_r >= threshold:  # both black
+                if bottom_l >= threshold[0] and bottom_r >= threshold[0]:  # both black
                     #if drive_mode != 1:
                     set_motors(forwardspd_l, forwardspd)
                     #    drive_mode = 1
@@ -195,14 +195,14 @@ class TeamOverload(object):
                         raise KeyboardInterrupt
                     else:
                         stopline_detected = 0
-                elif bottom_l < threshold and bottom_r >= threshold:  # left white
+                elif bottom_l < threshold[0] and bottom_r >= threshold[0]:  # left white
                     #if drive_mode != 2:
                     set_motors(turnspd_l[0], turnspd[1])  # turn right
                     #    drive_mode = 2
                     print("> turn right")
                     if stopline_detected and turndir != "None":
                         stopline_detected = 0
-                elif bottom_l >= threshold and bottom_r < threshold:  # right white
+                elif bottom_l >= threshold[0] and bottom_r < threshold[0]:  # right white
                     #if drive_mode != 3:
                     set_motors(turnspd_l[1], turnspd[0])  # turn left
                     #    drive_mode = 3
@@ -422,13 +422,13 @@ class TeamOverload(object):
         self.screen.draw_text_center("- course B -")
 
         # go forward
-        self.trace_line(forwardspd=6, turndir="None")
+        self.trace_line(forwardspd=4, turndir="None")
 
         # detect red light
         while self.color_detector(self.knn_trafficlight) != "Red":
             pass
         print("red light is detected")
-        while self.color_detector(self.knn_trafficlight) == "Red":
+        while self.color_detector(self.knn_trafficlight, len=3) == "Red":
             pass
         print("red light was removed")
 
@@ -458,7 +458,7 @@ class TeamOverload(object):
             pass
 
         # go until the stop line
-        self.trace_line(turndir="None")
+        self.trace_line(turndir="None", forwardspd=4, turnspd=[2, 0], motordiff=6)
 
         # detect QR
         result = None
