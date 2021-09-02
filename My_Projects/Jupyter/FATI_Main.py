@@ -45,7 +45,7 @@ class TeamOverload(object):
         self.zumi = Zumi()
 
         if demo_name is None:
-            self.demo_name = ["", "Parking_300_8444", "All_300_8444"]
+            self.demo_name = ["", "Parking_300_8444", "All_200_8444"]
         else:
             print("demo_name argument " + self.demo_name + "detected!\n")
         self.knn_parking = ColorClassifier(demo_name=self.demo_name[1], user_name="Overload")
@@ -134,7 +134,7 @@ class TeamOverload(object):
     def print_face(self):
         self.screen.draw_image_by_name("zumi_face_by_overload")
 
-    def trace_line(self, threshold=95, turnspd=[5, -1], forwardspd=9, motordiff=13,
+    def trace_line(self, threshold=95, turnspd=[5, 0], forwardspd=9, motordiff=13,
                    stopcount=15, turndir="Stop", frontsensor=0, duration=0):
         """ do not run this method with threading/thread/multiprocessing
             motordiff cannot be negative
