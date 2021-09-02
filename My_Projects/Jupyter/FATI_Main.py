@@ -391,7 +391,7 @@ class TeamOverload(object):
             else:
                 self.trace_line()
                 # go a little bit more
-                self.zumi.forward()
+                self.zumi.forward(speed=10, duration=0.3)
 
             if not found:
                 # turn to direction
@@ -409,7 +409,7 @@ class TeamOverload(object):
                         self.turn_to_dir(desired_angle=dir*2, speed=[1, -1])
                         self.trace_line()
                         # go a little bit more
-                        self.zumi.forward()
+                        self.zumi.forward(speed=10, duration=0.3)
                     found = True
 
                 # turn to direction
