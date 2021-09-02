@@ -354,10 +354,11 @@ class TeamOverload(object):
                     _, bottom_r, _, bottom_l, _, _ = get_data()
                     print(bottom_l, bottom_r)
 
-                if trust_line and 0 < before+desired_angle-read_z() < 10:
+                gap = ((before+desired_angle)-read_z()) * -1 if desired_angle < 0 else 1
+                if trust_line and 0 < gap < 10:
                     if bottom_l >= threshold and bottom_r >= threshold:
                         break
-                elif before+desired_angle-read_z() <= 0:
+                elif gap <= 0:
                     if not trust_line or bottom_l >= threshold or bottom_r >= threshold:
                         break
             print("-- result : %d -> %d --" % (before, read_z()))
@@ -394,7 +395,7 @@ class TeamOverload(object):
 
             if not found:
                 # turn to direction
-                self.turn_to_dir(dir)
+                self.turn_to_dir(desired_angle=dir)
 
                 if self.color_detector(self.knn_parking) == result:
                     # park
@@ -405,14 +406,14 @@ class TeamOverload(object):
                     if reverse_on:
                         self.trace_line(forwardspd=-10, turnspd=[-5, 1])
                     else:
-                        self.turn_to_dir(dir*2)
+                        self.turn_to_dir(desired_angle=dir*2)
                         self.trace_line()
                         # go a little bit more
                         self.zumi.forward()
                     found = True
 
                 # turn to direction
-                self.turn_to_dir(dir * -1 if reverse_on else 1)
+                self.turn_to_dir(desired_angle=dir * -1 if reverse_on else 1)
 
     def run_courseB(self, turnspd=[2, 0], forwardspd=2, motordiff=0):
         """ 빨강색 Color Card 를 이용해 B course 시작지점에 정차했다가 카드를 치우면 남은 B course를 올바르게 주행하는지: 최대 +50점
@@ -486,7 +487,7 @@ class TeamOverload(object):
         self.turn_to_dir(desired_angle=90 if 'L' in result else -90)
 
         # end
-        self.trace_line(frontsensor=1, forwardspd=4, turnspd=[2, 0])
+        self.trace_line(frontsensor=1, forwardspd=4, turnspd=[2, 0], turndir=result, threshold=[40, 110])
         self.print_face()
         self.play_NextLevel()
 
