@@ -433,7 +433,7 @@ class TeamOverload(object):
         print("red light was removed")
 
         # go until the stop line
-        self.trace_line(turnspd, forwardspd, turndir="None")
+        self.trace_line(turnspd=turnspd, forwardspd=forwardspd, turndir="None")
 
     def run_courseC(self, signalwait=10):
         """ 신호등의 색상이 초록색으로 바뀌면 QR코드를 인식하고 QR코드 문제를 올바르게 해결하여 적절한 도착지점에 도착: 최대 +70점
