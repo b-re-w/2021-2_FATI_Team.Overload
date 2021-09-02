@@ -413,7 +413,7 @@ class TeamOverload(object):
                 # turn to direction
                 self.turn_to_dir(dir * -1 if reverse_on else 1)
 
-    def run_courseB(self):
+    def run_courseB(self, turnspd=[5, -1], forwardspd=7):
         """ 빨강색 Color Card 를 이용해 B course 시작지점에 정차했다가 카드를 치우면 남은 B course를 올바르게 주행하는지: 최대 +50점
             빨간색 카드를 제대로 인식하고 정지하는지: 각 +15점 (빨간색 카드는 총 2회 등장함: 총 +30점)
             초록색 카드를 제대로 인식하고 빨간색 카드가 없을 때 올바르게 주행하는지: +20점
@@ -433,7 +433,7 @@ class TeamOverload(object):
         print("red light was removed")
 
         # go until the stop line
-        self.trace_line(turndir="None")
+        self.trace_line(turnspd, forwardspd, turndir="None")
 
     def run_courseC(self, signalwait=10):
         """ 신호등의 색상이 초록색으로 바뀌면 QR코드를 인식하고 QR코드 문제를 올바르게 해결하여 적절한 도착지점에 도착: 최대 +70점
