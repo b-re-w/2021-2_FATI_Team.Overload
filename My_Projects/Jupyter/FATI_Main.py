@@ -354,7 +354,7 @@ class TeamOverload(object):
                     _, bottom_r, _, bottom_l, _, _ = get_data()
                     print(bottom_l, bottom_r)
 
-                gap = ((before+desired_angle)-read_z()) * -1 if desired_angle < 0 else 1
+                gap = ((before+desired_angle)-read_z()) * (-1 if desired_angle < 0 else 1)
                 if trust_line and 0 < gap < 10:
                     if bottom_l >= threshold and bottom_r >= threshold:
                         break
@@ -395,7 +395,7 @@ class TeamOverload(object):
 
             if not found:
                 # turn to direction
-                self.turn_to_dir(desired_angle=dir)
+                self.turn_to_dir(desired_angle=dir, speed=[4, -4])
 
                 if self.color_detector(self.knn_parking) == result:
                     # park
@@ -406,14 +406,14 @@ class TeamOverload(object):
                     if reverse_on:
                         self.trace_line(forwardspd=-10, turnspd=[-5, 1])
                     else:
-                        self.turn_to_dir(desired_angle=dir*2)
+                        self.turn_to_dir(desired_angle=dir*2, speed=[4, -4])
                         self.trace_line()
                         # go a little bit more
                         self.zumi.forward()
                     found = True
 
                 # turn to direction
-                self.turn_to_dir(desired_angle=dir * -1 if reverse_on else 1)
+                self.turn_to_dir(desired_angle=dir * (-1 if reverse_on else 1))
 
     def run_courseB(self, turnspd=[2, 0], forwardspd=2, motordiff=0):
         """ 빨강색 Color Card 를 이용해 B course 시작지점에 정차했다가 카드를 치우면 남은 B course를 올바르게 주행하는지: 최대 +50점
