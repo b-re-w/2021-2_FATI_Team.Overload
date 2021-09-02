@@ -322,7 +322,7 @@ class TeamOverload(object):
             self.zumi.stop()
             print("-- a stop sign found --")
 
-    def turn_to_dir(self, threshold=95, desired_angle=90, speed=[25, 0], motordiff=13, trust_line=True):
+    def turn_to_dir(self, threshold=95, desired_angle=90, speed=[5, -5], motordiff=13, trust_line=True):
         """ desired_angle > 0 -> turn left
             desired_angle < 0 -> turn right
         """
