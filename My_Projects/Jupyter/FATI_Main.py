@@ -117,6 +117,54 @@ class TeamOverload(object):
         self.screen.draw_text_center(result + " detected")
         return result
 
+    def restricted_color_detector(self, knn=None, len=5, unity=True):
+        """Blue, Orange, Yellow 구분에만 사용하기 위해 만든 메서드
+        *  'sv' : real Blue -> Blue, real orange -> Blue, real Yellow -> Yellow
+           'hs' : real Blue -> Blue Orange, real orange -> Blue, real Yellow ->Blue
+        *  'hv' : real Blue -> Yellow, real Orange -> Blue, real Yellow -> Blue
+           'h' : real Blue -> Yellow, real orange -> Blue, real Yellow -> Blue
+           's' : real Blue -> Blue, real orange -> Blue, real Yellow -> Blue or Yellow or Orange
+           'v' : real Blue -> Yellow, real orange -> Blue or Yellow, real Yellow -> Yellow
+           so, use 'sv' to separate Yellow from the others, and use 'hv' to distinguish blue from yellow
+           (if hv yellow then blue, and hv blue then orange)
+        """
+        if knn is None:
+            knn = self.knn_parking
+        knn.fit("sv")
+
+        retry = True
+        while retry:
+            predicts = []
+            for i in range(1, len+1, 1):
+                image = self.camera.capture()
+                if knn.predict(image) == "Yellow":
+                    result = "Yellow"
+                else:
+                    knn.fit("hv")
+                    if knn.predict(image) == "Blue":
+                        result = "Orange"
+                    else:  # prediction == "Yellow"
+                        result = "Blue"
+                    knn.fit("sv")
+                predicts.append(result)
+                self.screen.draw_text_center("%d/%d" % (i, len))
+            print(predicts)
+            retry = False
+            common = Counter(predicts).most_common()
+            if unity:  # 유일성 보장
+                for c in common[1:]:
+                    if c[1] == common[0][1]:
+                        print("unity of prediction cannot be guaranteed. retry!")
+                        self.screen.draw_text_center("retry!!")
+                        retry = True
+            else:  # 동일한 빈도수의 값이 나온 경우 문제 발생.
+                pass
+            result = common[0][0]
+        print("color_detector result : " + result)
+        self.screen.draw_text_center(result + " detected")
+        knn.fit("hsv")
+        return result
+
     def qr_detector(self):
         image = self.camera.capture()
         qr_code = self.vision.find_QR_code(image)
@@ -370,7 +418,7 @@ class TeamOverload(object):
             self.zumi.stop()
 
     def run_courseA(self, reverse_on=False, trust_line=True, senario=False,
-                    forwardspd=4, turnspd=[2, 0], motordiff=13):
+                    forwardspd=2, turnspd=[2, 0], motordiff=6):
         """ 색상 카드를 읽어 해당 색상에 맞는 주차공간을 찾아 주차 (주차공간의 전면에 색상카드가 세워질 예정 - 전면카메라를 이용한 색깔 인식): 최대 +80점
             출발 직전 도 레 미 음성 출력 후 출발: +10점
             색깔 인식 후 Zumi 화면에 해당 색상 표시: +20점
@@ -381,6 +429,7 @@ class TeamOverload(object):
         self.screen.draw_text_center("- course A -")
 
         # before the zumi start
+        input("[ZUMI] Press enter to start! :")
         self.trace_line(forwardspd=1, turnspd=[1, 0], turndir="None")
         self.play_DoReMi()
         result = self.color_detector(self.knn_parking)
@@ -401,10 +450,11 @@ class TeamOverload(object):
                 continue
 
             if not found:
+                print("zumi found the parkig lot!")
                 # turn to direction
                 self.turn_to_dir(desired_angle=dir, speed=[1, -1])
 
-                if senario or self.color_detector(self.knn_parking) == result:
+                if senario or self.restricted_color_detector() == result:
                     # park
                     self.trace_line()
                     time.sleep(1)
@@ -445,7 +495,7 @@ class TeamOverload(object):
         # go until the stop line
         self.trace_line(turnspd=turnspd, forwardspd=forwardspd, turndir="None", motordiff=motordiff)
 
-    def run_courseC(self, backandforth=0, threshold=[40, 110]):
+    def run_courseC(self, backandforth=0, threshold=[40, 120]):
         """ 신호등의 색상이 초록색으로 바뀌면 QR코드를 인식하고 QR코드 문제를 올바르게 해결하여 적절한 도착지점에 도착: 최대 +70점
             QR코드 지점까지 올바르게 라인트레이싱: +10점
             QR코드의 message를 올바르게 인식: +10점
@@ -506,7 +556,7 @@ if __name__ == '__main__':
     fati = TeamOverload(sys.argv if len(sys.argv) == 3 else None)
 
     # course A
-    fati.run_courseA()
+    fati.run_courseA(trust_line=False)
 
     # course B
     fati.run_courseB()
