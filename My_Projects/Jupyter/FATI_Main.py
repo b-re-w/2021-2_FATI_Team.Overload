@@ -399,19 +399,24 @@ class TeamOverload(object):
             print("> not move")
 
         try:
+            current = before
             while True:
                 if trust_line:
                     _, bottom_r, _, bottom_l, _, _ = get_data()
                     print(bottom_l, bottom_r)
 
-                gap = ((before+desired_angle)-read_z()) * (-1 if desired_angle < 0 else 1)
+                current = read_z()
+                gap = ((before+desired_angle)-current) * (-1 if desired_angle < 0 else 1)
                 if trust_line and 0 < gap < 10:
                     if bottom_l >= threshold and bottom_r >= threshold:
+                        print("stop line detected | abort before the setted angle is reached")
                         break
                 elif gap <= 0:
                     if not trust_line or bottom_l >= threshold or bottom_r >= threshold:
+                        print("stop line detected | abort after reaching setted angle")
                         break
-            print("-- result : %d -> %d --" % (before, read_z()))
+
+            print("-- result : %d -> %d -- (%d)" % (before, current, current-before))
         except KeyboardInterrupt:
             print("-- a stop sign found --")
         finally:
