@@ -412,7 +412,7 @@ class TeamOverload(object):
                 current = read_z()
                 gap = ((before+desired_angle)-current) * (-1 if desired_angle < 0 else 1)
                 if trust_line and 0 < gap < 10:
-                    if bottom_l >= threshold or bottom_r >= threshold:
+                    if bottom_l >= threshold and bottom_r >= threshold:
                         print("stop line detected | abort before the setted angle is reached")
                         break
                 elif gap <= 0:
