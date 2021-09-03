@@ -50,7 +50,7 @@ class TeamOverload(object):
             self.demo_name = ["", "Parking_1500_8444", "All_400_8444"]
         else:
             self.demo_name = demo_name
-            print("demo_name argument " + self.demo_name + "detected!\n")
+            print("demo_name argument %s, %s detected!\n" % (demo_name[1], demo_name[2]))
         self.knn_parking = ColorClassifier(demo_name=self.demo_name[1], user_name="Overload")
         self.knn_trafficlight = ColorClassifier(demo_name=self.demo_name[2], user_name="Overload")
         self.knn_parking.fit("sv")
