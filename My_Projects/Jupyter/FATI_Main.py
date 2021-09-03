@@ -429,7 +429,7 @@ class TeamOverload(object):
         self.screen.draw_text_center("- course A -")
 
         # before the zumi start
-        input("[ZUMI] Press enter to start! :")
+        input("[ZUMI] Press enter to start! : ")
         self.trace_line(forwardspd=1, turnspd=[1, 0], turndir="None")
         self.play_DoReMi()
         result = self.restricted_color_detector()  # self.color_detector(self.knn_parking)
@@ -556,7 +556,7 @@ if __name__ == '__main__':
     fati = TeamOverload(sys.argv if len(sys.argv) == 3 else None)
 
     # course A
-    fati.run_courseA(trust_line=False)
+    fati.run_courseA()
 
     # course B
     fati.run_courseB()
