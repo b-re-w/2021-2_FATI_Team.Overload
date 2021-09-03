@@ -47,7 +47,7 @@ class TeamOverload(object):
         self.zumi = Zumi()
 
         if demo_name is None:
-            self.demo_name = ["", "Parking_1500_8444", "All_400_8444"]
+            self.demo_name = ["", "Parking_3000_8444", "All_400_8444"]
         else:
             self.demo_name = demo_name
             print("demo_name argument %s, %s detected!\n" % (demo_name[1], demo_name[2]))
@@ -205,7 +205,7 @@ class TeamOverload(object):
         def set_motors(left, right):
             ctrl_motors(right, left)
 
-        self.zumi.reset_drive()
+        #self.zumi.reset_drive()
 
         stopline_detected = 0
         obstacle_detected = False
@@ -442,11 +442,11 @@ class TeamOverload(object):
         input("[ZUMI] Press enter to start! : ")
         self.play_DoReMi()
         result = self.restricted_color_detector()  # self.color_detector(self.knn_parking)
-        order = ["O", "Y", "B"] if senario else [-90-angle_calib, 90+angle_calib, -90-angle_calib]
+        order = ["O", "Y", "B"]
 
         # for loop until zumi ever parked
         found = False
-        for i, dir in enumerate(order):
+        for i, dir in enumerate([-90-angle_calib, 90+angle_calib, -90-angle_calib]):
             # go until the stop line
             if trust_line:
                 self.trace_line(turndir="None", forwardspd=forwardspd, turnspd=turnspd, motordiff=motordiff)
