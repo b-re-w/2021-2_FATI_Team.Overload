@@ -205,6 +205,8 @@ class TeamOverload(object):
         def set_motors(left, right):
             ctrl_motors(right, left)
 
+        self.zumi.reset_drive()
+
         stopline_detected = 0
         obstacle_detected = False
 
