@@ -450,7 +450,6 @@ class TeamOverload(object):
                 continue
 
             if not found:
-                print("zumi found the parkig lot!")
                 # turn to direction
                 self.turn_to_dir(desired_angle=dir, speed=[1, -1])
 
@@ -464,14 +463,15 @@ class TeamOverload(object):
                         self.zumi.reverse(speed=10, duration=0.5)
                         self.trace_line(forwardspd=-10, turnspd=[-5, 1])
                     else:
-                        self.turn_to_dir(desired_angle=dir*2, speed=[1, -1])
+                        self.turn_to_dir(desired_angle=dir*-2, speed=[1, -1])
                         self.trace_line()
                         # go a little bit more
                         self.zumi.forward(speed=10, duration=0.3)
                     found = True
+                    print("zumi found the parkig lot!")
 
                 # turn to direction
-                self.turn_to_dir(desired_angle=dir * (-1 if reverse_on or not found else 1))
+                self.turn_to_dir(desired_angle=dir * (-1 if (reverse_on or not found) else 1))
 
     def run_courseB(self, turnspd=[2, 0], forwardspd=2, motordiff=0):
         """ 빨강색 Color Card 를 이용해 B course 시작지점에 정차했다가 카드를 치우면 남은 B course를 올바르게 주행하는지: 최대 +50점
