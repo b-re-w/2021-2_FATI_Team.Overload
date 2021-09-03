@@ -433,7 +433,7 @@ class TeamOverload(object):
             self.zumi.stop()
 
     def run_courseA(self, reverse_on=False, trust_line=True, senario=False,
-                    forwardspd=2, turnspd=[2, 0], motordiff=6, angle_calib=-20, reset=True):
+                    forwardspd=2, turnspd=[2, 0], motordiff=6, angle_calib=-20, reset=False):
         """ 색상 카드를 읽어 해당 색상에 맞는 주차공간을 찾아 주차 (주차공간의 전면에 색상카드가 세워질 예정 - 전면카메라를 이용한 색깔 인식): 최대 +80점
             출발 직전 도 레 미 음성 출력 후 출발: +10점
             색깔 인식 후 Zumi 화면에 해당 색상 표시: +20점
