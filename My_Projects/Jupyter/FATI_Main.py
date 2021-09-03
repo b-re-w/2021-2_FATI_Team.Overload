@@ -186,7 +186,7 @@ class TeamOverload(object):
         self.screen.draw_image_by_name("zumi_face_by_overload")
 
     def trace_line(self, threshold=[95, 30], turnspd=[5, 0], forwardspd=7, motordiff=13,
-                   stopcount=15, turndir="Stop", frontsensor=0, duration=0):
+                   stopcount=15, turndir="Stop", frontsensor=0, duration=0, reset=False):
         """ do not run this method with threading/thread/multiprocessing
             motordiff cannot be negative
             turndir == "Stop" -> stop when both white
@@ -205,7 +205,8 @@ class TeamOverload(object):
         def set_motors(left, right):
             ctrl_motors(right, left)
 
-        #self.zumi.reset_drive()
+        if reset:
+            self.zumi.reset_drive()
 
         stopline_detected = 0
         obstacle_detected = False
@@ -375,7 +376,7 @@ class TeamOverload(object):
             self.zumi.stop()
             print("-- a stop sign found --")
 
-    def turn_to_dir(self, threshold=95, desired_angle=90, speed=[5, -5], motordiff=13, trust_line=True):
+    def turn_to_dir(self, threshold=95, desired_angle=90, speed=[5, -5], motordiff=13, trust_line=True, reset=True):
         """ desired_angle > 0 -> turn left
             desired_angle < 0 -> turn right
         """
@@ -386,7 +387,8 @@ class TeamOverload(object):
         def set_motors(left, right):
             ctrl_motors(right, left)
 
-        self.zumi.reset_drive()
+        if reset:
+            self.zumi.reset_drive()
 
         speed_l = [speed[0]+abs(motordiff)*(1 if speed[0] > 0 else -1 if speed[0] < 0 else 0),
                    speed[1]+abs(motordiff)*(1 if speed[1] > 0 else -1 if speed[1] < 0 else 0)]
@@ -427,7 +429,7 @@ class TeamOverload(object):
             self.zumi.stop()
 
     def run_courseA(self, reverse_on=False, trust_line=True, senario=False,
-                    forwardspd=2, turnspd=[2, 0], motordiff=6, angle_calib=-20):
+                    forwardspd=2, turnspd=[2, 0], motordiff=6, angle_calib=-20, reset=True):
         """ 색상 카드를 읽어 해당 색상에 맞는 주차공간을 찾아 주차 (주차공간의 전면에 색상카드가 세워질 예정 - 전면카메라를 이용한 색깔 인식): 최대 +80점
             출발 직전 도 레 미 음성 출력 후 출발: +10점
             색깔 인식 후 Zumi 화면에 해당 색상 표시: +20점
@@ -460,7 +462,7 @@ class TeamOverload(object):
 
             if not found:
                 # turn to direction
-                self.turn_to_dir(desired_angle=dir, speed=[1, -1])
+                self.turn_to_dir(desired_angle=dir, speed=[1, -1], reset=reset)
 
                 if senario or self.restricted_color_detector() == result:
                     # park
@@ -472,7 +474,7 @@ class TeamOverload(object):
                         self.zumi.reverse(speed=10, duration=0.5)
                         self.trace_line(forwardspd=-10, turnspd=[-5, 1])
                     else:
-                        self.turn_to_dir(desired_angle=dir*-2, speed=[1, -1])
+                        self.turn_to_dir(desired_angle=dir*-2, speed=[1, -1], reset=reset)
                         self.trace_line()
                         # go a little bit more
                         self.zumi.forward(speed=10, duration=0.3)
@@ -480,7 +482,7 @@ class TeamOverload(object):
                     print("zumi found the parkig lot!")
 
                 # turn to direction
-                self.turn_to_dir(desired_angle=dir * (-1 if (reverse_on or not found) else 1))
+                self.turn_to_dir(desired_angle=dir * (-1 if (reverse_on or not found) else 1), reset=reset)
 
     def run_courseB(self, turnspd=[2, 0], forwardspd=2, motordiff=0):
         """ 빨강색 Color Card 를 이용해 B course 시작지점에 정차했다가 카드를 치우면 남은 B course를 올바르게 주행하는지: 최대 +50점
