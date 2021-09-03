@@ -384,6 +384,8 @@ class TeamOverload(object):
         def set_motors(left, right):
             ctrl_motors(right, left)
 
+        self.zumi.reset_drive()
+
         speed_l = [speed[0]+abs(motordiff)*(1 if speed[0] > 0 else -1 if speed[0] < 0 else 0),
                    speed[1]+abs(motordiff)*(1 if speed[1] > 0 else -1 if speed[1] < 0 else 0)]
 
