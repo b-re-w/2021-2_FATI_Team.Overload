@@ -432,7 +432,7 @@ class TeamOverload(object):
         input("[ZUMI] Press enter to start! :")
         self.trace_line(forwardspd=1, turnspd=[1, 0], turndir="None")
         self.play_DoReMi()
-        result = self.color_detector(self.knn_parking)
+        result = self.restricted_color_detector()  # self.color_detector(self.knn_parking)
         order = ["Orange", "Yellow", "Blue"]
 
         # for loop until zumi ever parked
