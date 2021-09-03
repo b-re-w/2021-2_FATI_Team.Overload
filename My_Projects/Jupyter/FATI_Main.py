@@ -119,10 +119,10 @@ class TeamOverload(object):
 
     def restricted_color_detector(self, knn=None, len=5, unity=True):
         """Blue, Orange, Yellow 구분에만 사용하기 위해 만든 메서드
-        *  'sv' : real Blue -> Blue, real orange -> Blue, real Yellow -> Yellow
+        *  'sv' : real Blue -> Blue, yello, real orange -> Blue, real Yellow -> Yellow
            'hs' : real Blue -> Blue Orange, real orange -> Blue, real Yellow ->Blue
         *  'hv' : real Blue -> Yellow, real Orange -> Blue, real Yellow -> Blue
-           'h' : real Blue -> Yellow, real orange -> Blue, real Yellow -> Blue
+        *  'h' : real Blue -> Yellow, real orange -> Blue, real Yellow -> Blue
            's' : real Blue -> Blue, real orange -> Blue, real Yellow -> Blue or Yellow or Orange
            'v' : real Blue -> Yellow, real orange -> Blue or Yellow, real Yellow -> Yellow
            so, use 'sv' to separate Yellow from the others, and use 'hv' to distinguish blue from yellow
@@ -138,14 +138,18 @@ class TeamOverload(object):
             for i in range(1, len+1, 1):
                 image = self.camera.capture()
                 if knn.predict(image) == "Yellow":
-                    result = "Yellow"
+                    knn.fit("h")
+                    if knn.predict(image) == "Blue":
+                        result = "Yellow"
+                    else:  # prediction == "Yellow"
+                        result = "Blue"
                 else:
                     knn.fit("hv")
                     if knn.predict(image) == "Blue":
                         result = "Orange"
                     else:  # prediction == "Yellow"
                         result = "Blue"
-                    knn.fit("sv")
+                knn.fit("sv")
                 predicts.append(result)
                 self.screen.draw_text_center("%d/%d" % (i, len))
             print(predicts)
@@ -376,7 +380,7 @@ class TeamOverload(object):
             self.zumi.stop()
             print("-- a stop sign found --")
 
-    def turn_to_dir(self, threshold=95, desired_angle=90, speed=[5, -5], motordiff=13, trust_line=True, reset=True):
+    def turn_to_dir(self, threshold=95, desired_angle=90, speed=[5, -5], motordiff=13, trust_line=True, reset=False):
         """ desired_angle > 0 -> turn left
             desired_angle < 0 -> turn right
         """
