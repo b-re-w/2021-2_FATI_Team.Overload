@@ -123,8 +123,8 @@ class TeamOverload(object):
            'hs' : real Blue -> Blue Orange, real orange -> Blue, real Yellow ->Blue
         *  'hv' : real Blue -> Yellow, real Orange -> Blue, real Yellow -> Blue
         *  'h' : real Blue -> Yellow, real orange -> Blue, real Yellow -> Blue
-           's' : real Blue -> Blue, real orange -> Blue, real Yellow -> Blue or Yellow or Orange
-        *  'v' : real Blue -> Yellow, real orange -> Blue or Yellow, real Yellow -> Yellow
+        *  's' : real Blue -> Blue, real orange -> Blue, real Yellow -> Blue or Yellow or Orange
+           'v' : real Blue -> Yellow, real orange -> Blue or Yellow, real Yellow -> Yellow
            so, use 'sv' to separate Yellow from the others, and use 'hv' to distinguish blue from yellow
            (if hv yellow then blue, and hv blue then orange)
         """
@@ -140,11 +140,11 @@ class TeamOverload(object):
                 if knn.predict(image) == "Yellow":
                     knn.fit("h")
                     if knn.predict(image) == "Blue":
-                        knn.fit("v")
-                        if knn.predict(image) == "Yellow":
-                            result = "Yellow"
-                        else:
+                        knn.fit("s")
+                        if knn.predict(image) == "Blue":
                             result = "Orange"
+                        else:
+                            result = "Yellow"
                     else:  # prediction == "Yellow"
                         result = "Blue"
                 else:
