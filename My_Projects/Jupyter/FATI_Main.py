@@ -510,7 +510,7 @@ class TeamOverload(object):
         # go until the stop line
         self.trace_line(turnspd=turnspd, forwardspd=forwardspd, turndir="None", motordiff=motordiff)
 
-    def run_courseC(self, backandforth=0, threshold=[40, 120]):
+    def run_courseC(self, backandforth=0, threshold=[40, 120], reset=True):
         """ 신호등의 색상이 초록색으로 바뀌면 QR코드를 인식하고 QR코드 문제를 올바르게 해결하여 적절한 도착지점에 도착: 최대 +70점
             QR코드 지점까지 올바르게 라인트레이싱: +10점
             QR코드의 message를 올바르게 인식: +10점
@@ -554,10 +554,10 @@ class TeamOverload(object):
                     reversed = 1 if reversed == 2 else 0
 
         # go until jumi reaches the junction
-        self.trace_line(duration=1)
+        self.trace_line(duration=(1 if 'L' in result else 1.2))
 
         # turn
-        self.turn_to_dir(desired_angle=90 if 'L' in result else -90)
+        self.turn_to_dir(desired_angle=85 if 'L' in result else -85, reset=reset)
 
         # end
         self.trace_line(frontsensor=1, forwardspd=4, turnspd=[2, 0],
