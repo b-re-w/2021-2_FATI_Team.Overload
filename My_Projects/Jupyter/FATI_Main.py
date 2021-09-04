@@ -123,8 +123,8 @@ class TeamOverload(object):
            'hs' : real Blue -> Blue Orange, real orange -> Blue, real Yellow ->Blue
         *  'hv' : real Blue -> Yellow, real Orange -> Blue, real Yellow -> Blue
         *  'h' : real Blue -> Yellow, real orange -> Blue, real Yellow -> Blue
-        *  's' : real Blue -> Blue, real orange -> Blue, real Yellow -> Blue or Yellow or Orange
-           'v' : real Blue -> Yellow, real orange -> Blue or Yellow, real Yellow -> Yellow
+           's' : real Blue -> Blue, real orange -> Blue, real Yellow -> Blue or Yellow or Orange
+           'v' : real Blue -> Yellow, real orange -> Blue or Yellow, real Yellow -> Blue, Yellow
            so, use 'sv' to separate Yellow from the others, and use 'hv' to distinguish blue from yellow
            (if hv yellow then blue, and hv blue then orange)
         """
@@ -140,11 +140,7 @@ class TeamOverload(object):
                 if knn.predict(image) == "Yellow":
                     knn.fit("h")
                     if knn.predict(image) == "Blue":
-                        knn.fit("s")
-                        if knn.predict(image) == "Blue":
-                            result = "Orange"
-                        else:
-                            result = "Yellow"
+                        result = "Yellow"
                     else:  # prediction == "Yellow"
                         result = "Blue"
                 else:
@@ -561,7 +557,7 @@ class TeamOverload(object):
         self.trace_line(duration=(1 if 'L' in result else 1.2))
 
         # turn
-        self.turn_to_dir(desired_angle=85 if 'L' in result else -85, reset=reset)
+        self.turn_to_dir(desired_angle=85 if 'L' in result else -100, reset=reset)
 
         # end
         self.trace_line(frontsensor=1, forwardspd=4, turnspd=[2, 0],
