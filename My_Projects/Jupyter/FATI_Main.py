@@ -557,7 +557,7 @@ class TeamOverload(object):
         self.trace_line(duration=1)
 
         # turn
-        self.turn_to_dir(desired_angle=90 if 'L' in result else -90)
+        self.turn_to_dir(desired_angle=90 if 'L' in result else -90, reset=True)
 
         # end
         self.trace_line(frontsensor=1, forwardspd=4, turnspd=[2, 0],
