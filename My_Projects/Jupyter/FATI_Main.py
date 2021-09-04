@@ -141,10 +141,10 @@ class TeamOverload(object):
                     knn.fit("h")
                     if knn.predict(image) == "Blue":
                         knn.fit("v")
-                        if knn.predict(image) == "Blue":
-                            result = "Orange"
-                        else:
+                        if knn.predict(image) == "Yellow":
                             result = "Yellow"
+                        else:
+                            result = "Orange"
                     else:  # prediction == "Yellow"
                         result = "Blue"
                 else:
