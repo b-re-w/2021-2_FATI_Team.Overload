@@ -455,9 +455,9 @@ class TeamOverload(object):
         for i, dir in enumerate([-90-angle_calib, 90+angle_calib, -90-angle_calib]):
             # go until the stop line
             if trust_line:
-                self.trace_line(turndir="None", forwardspd=forwardspd, turnspd=turnspd, motordiff=motordiff if i != 2 15)
+                self.trace_line(turndir="None", forwardspd=forwardspd, turnspd=turnspd, motordiff=motordiff if i != 2 else 15)
             else:
-                self.trace_line(forwardspd=forwardspd, turnspd=turnspd, motordiff=motordiff)
+                self.trace_line(forwardspd=forwardspd, turnspd=turnspd, motordiff=motordiff if i != 2 else 15)
                 # go a little bit more
                 self.zumi.forward(speed=10, duration=0.3)
 
